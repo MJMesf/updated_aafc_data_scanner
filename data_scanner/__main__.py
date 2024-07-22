@@ -37,7 +37,7 @@ class DataCatalogue:
         return request(url)
     
     def search_datasets(self, **kwargs: str) -> List[str]:
-        """Returns ids of datasets that match the given filters
+        """Returns IDs of datasets that match the given filters
         e.g. groups='test-group'
         """
         filters: str = '+'.join(f'{key}:{val}' for key, val in kwargs.items())
@@ -109,7 +109,7 @@ def add_dataset(catalogue: DataCatalogue, id: str,
 
 def main():
     
-    # Problem accessing AAFC's Open Data Catalogue; TO BE FIXED LATER
+    # Problem accessing AAFC's Open Data Catalogue; TO BE FIXED LATER !!!
     # aafc_odc = DataCatalogue(AAFC_ODC_BASE_URL)
     registry = DataCatalogue(REGISTRY_BASE_URL)
 
