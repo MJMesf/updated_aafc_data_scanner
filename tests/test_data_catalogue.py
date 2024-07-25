@@ -51,8 +51,29 @@ class TestDataCatalogue(unittest.TestCase):
         for ds in datasets1:
             record = registry.get_dataset(ds)
             self.assertEqual(record['date_published'], "2013-03-21 00:00:00")
-        
-        # ADD MORE TESTS HERE
+
+
+        datasets2 = registry.search_datasets(metadata_created='"2023-03-08T19:28:22.318687Z"')
+        self.assertEqual(len(datasets2), 1)
+        for ds in datasets2:
+            record = registry.get_dataset(ds)
+            self.assertEqual(record['metadata_created'], "2023-03-08T19:28:22.318687")
+    
+    def test_get_resource(self):
+
+        registry = DataCatalogue(REGISTRY_BASE_URL)
+
+        id1 = '8aaba0de-732d-4078-bb30-e6b77a1239eb'
+        name1 = 'Toxics Reduction Act – Living List status of nominations'
+        result1 = registry.get_resource(id1)
+        self.assertEqual(result1['id'], id1)
+        self.assertEqual(result1['name'], name1)
+
+        id2 = '5e09b65b-04ae-4008-80f6-b21be4143703'
+        name2 = 'Notices: Item 5203: Sugar-Containing Products Serial No. 166 - 2009-08-20'
+        result2 = registry.get_resource(id2)
+        self.assertEqual(result2['id'], id2)
+        self.assertEqual(result2['name'], name2)
             
 if __name__ == '__main__':
     unittest.main()
