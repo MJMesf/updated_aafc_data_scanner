@@ -19,6 +19,7 @@ import urllib3
 from dataclasses import dataclass
 from tqdm import tqdm
 from typing import List, Dict, Any, Optional
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 
 AAFC_ODC_BASE_URL = 'https://data-catalogue-donnees.agr.gc.ca/api/3/action/'
@@ -33,7 +34,7 @@ DATASETS_COLS = ['id', 'title_en', 'title_fr', 'date_published',
 RESOURCES_COLS = ['id', 'title_en', 'title_fr', 'created', 'modified', 
                   'format', 'en', 'fr', 'package_id', 'url', 'url_status', 
                   'needs_update']
-
+urllib3.disable_warnings()
 
 @dataclass
 class DataCatalogue:
@@ -89,6 +90,14 @@ def display_exit_message() -> None:
     print("\n---- Program ended.\n")
 
 
+@retry(
+    stop=stop_after_attempt(10),
+    wait=wait_exponential(multiplier=1, min=1, max=20)
+)
+def get_and_retry(url):
+    """Sends http request and retries in case of connection issues."""
+    return requests.get(url)
+
 def request(url: str) -> Any:
     """Sends a CKAN API web request with a given URL and return the content 
     of the result
@@ -96,10 +105,9 @@ def request(url: str) -> Any:
     response: requests.models.Response
     # Pronlem accessing AAFC Open Data Catalogue; TO BE FIXED LATER
     if url.startswith('https://data-catalogue-donnees.agr.gc.ca/'):
-        urllib3.disable_warnings()
         response = requests.get(url, verify=False)
     else:
-        response = requests.get(url)
+        response = get_and_retry(url)
     assert response.status_code == 200, \
         f'Request Error:\nUnexpected status code: {response.status_code}'
     data = response.json()
@@ -110,9 +118,7 @@ def request(url: str) -> Any:
 
 def add_dataset(dataset: dict, datasets: pd.DataFrame,
                 lock: threading.Lock) -> None:
-    """Inserts the given dataset's information in the datasets dataframe at 
-    the given index.
-    """
+    """Adds the given dataset's information to the datasets dataframe."""
     record: Dict[str, Any] = {
         'id': dataset['id'],
         'title_en': dataset['title_translated']['en'],
@@ -144,35 +150,41 @@ def add_resource(resource: dict, resources: pd.DataFrame,
                  lock: threading.Lock) -> None:
     """Inserts the given dataset's information in the resources dataframe."""
 
-    # head requests the headers of the url (including the status code), 
-    # without loading the whole page
-    url_status: int = requests.head(resource['url']).status_code
-    
-    record: Dict[str, Any] = {
-        'id': resource['id'],
-        'title_en': resource['name'],
-        'title_fr': None, # special field (key changes depending on resource)
-        'created': resource['created'],
-        'modified': None, # non-mandatory field
-        'format': resource['format'],
-        'en': "en" in resource['language'],
-        'fr': "fr" in resource['language'],
-        'package_id': resource['package_id'],
-        'url': resource['url'],
-        'url_status': url_status,
-        'needs_update': None # needs_update status TO BE IMPLEMENTED
-    }
-    # non-mandatory and special fieldsL
-    if 'metadata_modified' in resource.keys():
-        record['modified'] = resource['metadata_modified']   
-    if 'fr' in resource['name_translated'].keys():
-        record['title_fr'] = resource['name_translated']['fr']   
-    elif 'fr-t-en' in resource['name_translated'].keys():
-        record['title_fr'] = resource['name_translated']['fr-t-en'] 
+    try:
+        # head requests the headers of the url (including the status code), 
+        # without loading the whole page
+        url_status: int = requests.head(resource['url']).status_code
+        
+        record: Dict[str, Any] = {
+            'id': resource['id'],
+            'title_en': resource['name'],
+            'title_fr': None, # special field (key changes depending on resource)
+            'created': resource['created'],
+            'modified': None, # non-mandatory field
+            'format': resource['format'],
+            'en': "en" in resource['language'],
+            'fr': "fr" in resource['language'],
+            'package_id': resource['package_id'],
+            'url': resource['url'],
+            'url_status': url_status,
+            'needs_update': None # needs_update status TO BE IMPLEMENTED
+        }
+        # non-mandatory and special fieldsL
+        if 'metadata_modified' in resource.keys():
+            record['modified'] = resource['metadata_modified']   
+        if 'fr' in resource['name_translated'].keys():
+            record['title_fr'] = resource['name_translated']['fr']   
+        elif 'fr-t-en' in resource['name_translated'].keys():
+            record['title_fr'] = resource['name_translated']['fr-t-en'] 
 
-    lock.acquire()
-    resources.loc[len(resources)] = record # type: ignore
-    lock.release()
+        lock.acquire()
+        resources.loc[len(resources)] = record # type: ignore
+        lock.release()
+    except Exception as e:
+        print(type(e))
+        print(e.args)
+        print(e)
+
 
 
 def collect_dataset(catalogue: DataCatalogue, id: str,
@@ -220,7 +232,6 @@ def main() -> None:
     resources_IDs: List[str] = []
     resources = pd.DataFrame(columns=RESOURCES_COLS)
 
-
     # Collecting information of all datasets published by AAFC:
 
     print()
@@ -252,7 +263,6 @@ def main() -> None:
     print(f'-- All {len(datasets_IDs)} datasets\' information was collected.')
     print(f'   {len(resources_IDs)} associated resources were listed.  ({end-start:.2f}s)')
 
-
     # Collecting information of all associated resources:
 
     print()
@@ -282,12 +292,19 @@ def main() -> None:
     
     print()
     timestamp: str = dt.datetime.now().strftime("%Y-%m-%d_%H%M%S")
-    filename1: str = f'./outputs/datasets_inventory_{timestamp}.xlsx'
-    datasets.to_excel(filename1, index=False)
-    print(f'Datasets inventory was successfully exported to {filename1}.')
-    filename2: str = f'./outputs/resources_inventory_{timestamp}.xlsx'
-    resources.to_excel(filename2, index=False)
-    print(f'Resources inventory was successfully exported to {filename2}.')
+    filename1_xlsx: str = f'./../inventories/datasets_inventory_{timestamp}.xlsx'
+    datasets.to_excel(filename1_xlsx, index=False)
+    print(f'Datasets inventory was successfully exported to {filename1_xlsx}.')
+    filename1_json: str = f'./../inventories/datasets_inventory_{timestamp}.json'
+    datasets.to_json(filename1_json, index=False)
+    print(f'Datasets inventory was successfully exported to {filename1_json}.')
+
+    filename2_xlsx: str = f'./../inventories/resources_inventory_{timestamp}.xlsx'
+    resources.to_excel(filename2_xlsx, index=False)
+    print(f'Resources inventory was successfully exported to {filename2_xlsx}.')
+    filename2_json: str = f'./../inventories/resources_inventory_{timestamp}.json'
+    resources.to_json(filename2_json, index=False)
+    print(f'Resources inventory was successfully exported to {filename2_json}.')
 
 
 if __name__ == '__main__':

@@ -14,7 +14,10 @@ This code is made to parse [AAFC](https://agriculture.canada.ca/en)'s open data,
 ## Content
 
 - **data_scanner/** \
-module containting the cleaning program
+module containting the main program
+
+- **test_files/** ... \
+sample I/O files for testing
 
 - **tests/** ... \
 code files for testing (unittests)
