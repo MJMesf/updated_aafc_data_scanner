@@ -30,10 +30,11 @@ AAFC_ORG_ID = '2ABCCA59-6C57-4886-99E7-85EC6C719218'
 """ID of the organization AAFC on the Open Registry"""
 DATASETS_COLS = ['id', 'title_en', 'title_fr', 'date_published', 
                  'metadata_created', 'metadata_modified' , 
-                 'num_resources', 'author_email', 'maintainer_email']
-RESOURCES_COLS = ['id', 'title_en', 'title_fr', 'created', 'modified', 
-                  'format', 'en', 'fr', 'package_id', 'url', 'url_status', 
-                  'needs_update']
+                 'num_resources', 'maintainer_email', 'collection',
+                 'frequency', 'needs_update']
+RESOURCES_COLS = ['id', 'title_en', 'title_fr', 
+                  'created', 'metadata_modified', 'format', 'en', 'fr', 
+                  'package_id', 'resource_type', 'url', 'url_status']
 urllib3.disable_warnings()
 
 @dataclass
@@ -127,8 +128,10 @@ def add_dataset(dataset: dict, datasets: pd.DataFrame,
         'metadata_created': dataset['metadata_created'],
         'metadata_modified': dataset['metadata_modified'],
         'num_resources': dataset['num_resources'],
-        'author_email': dataset['author_email'],
-        'maintainer_email': dataset['maintainer_email']
+        'maintainer_email': dataset['maintainer_email'],
+        'collection': dataset['collection'],
+        'frequency': dataset['frequency'],
+        'needs_update': None # TO BE IMPLEMENTED (using frequency)
     }
     lock.acquire()
     datasets.loc[len(datasets)] = record # type: ignore
@@ -160,18 +163,18 @@ def add_resource(resource: dict, resources: pd.DataFrame,
             'title_en': resource['name'],
             'title_fr': None, # special field (key changes depending on resource)
             'created': resource['created'],
-            'modified': None, # non-mandatory field
+            'metadata_modified': None, # non-mandatory field
             'format': resource['format'],
             'en': "en" in resource['language'],
             'fr': "fr" in resource['language'],
             'package_id': resource['package_id'],
+            'resource_type': resource['resource_type'],
             'url': resource['url'],
-            'url_status': url_status,
-            'needs_update': None # needs_update status TO BE IMPLEMENTED
+            'url_status': url_status
         }
         # non-mandatory and special fieldsL
         if 'metadata_modified' in resource.keys():
-            record['modified'] = resource['metadata_modified']   
+            record['metadata_modified'] = resource['metadata_modified']   
         if 'fr' in resource['name_translated'].keys():
             record['title_fr'] = resource['name_translated']['fr']   
         elif 'fr-t-en' in resource['name_translated'].keys():
