@@ -17,6 +17,7 @@ import time
 import urllib3
 
 from dataclasses import dataclass
+from requests.adapters import HTTPAdapter, Retry
 from tqdm import tqdm
 from typing import List, Dict, Any, Optional
 from tenacity import retry, stop_after_attempt, wait_exponential
@@ -35,7 +36,15 @@ DATASETS_COLS = ['id', 'title_en', 'title_fr', 'date_published',
 RESOURCES_COLS = ['id', 'title_en', 'title_fr', 
                   'created', 'metadata_modified', 'format', 'en', 'fr', 
                   'package_id', 'resource_type', 'url', 'url_status']
+
+# Request Session Preparation (to avoid connection errors 5XX)
+session = requests.Session()
+retries = Retry(backoff_factor=1, status_forcelist=[500, 502, 503, 504])
+session.mount('http://', HTTPAdapter(max_retries=retries))
+session.mount('https://', HTTPAdapter(max_retries=retries))
+
 urllib3.disable_warnings()
+
 
 @dataclass
 class DataCatalogue:
@@ -91,13 +100,16 @@ def display_exit_message() -> None:
     print("\n---- Program ended.\n")
 
 
-@retry(
-    stop=stop_after_attempt(10),
-    wait=wait_exponential(multiplier=1, min=1, max=20)
-)
+
 def get_and_retry(url):
     """Sends http request and retries in case of connection issues."""
-    return requests.get(url)
+    global session
+    return session.get(url)
+
+def get_head_and_retry(url):
+    """Sends http request and retries in case of connection issues."""
+    global session
+    return session.head(url)
 
 def request(url: str) -> Any:
     """Sends a CKAN API web request with a given URL and return the content 
@@ -156,7 +168,7 @@ def add_resource(resource: dict, resources: pd.DataFrame,
     try:
         # head requests the headers of the url (including the status code), 
         # without loading the whole page
-        url_status: int = requests.head(resource['url']).status_code
+        url_status: int = get_head_and_retry(resource['url']).status_code
         
         record: Dict[str, Any] = {
             'id': resource['id'],
@@ -295,19 +307,25 @@ def main() -> None:
     
     print()
     timestamp: str = dt.datetime.now().strftime("%Y-%m-%d_%H%M%S")
-    filename1_xlsx: str = f'./../inventories/datasets_inventory_{timestamp}.xlsx'
-    datasets.to_excel(filename1_xlsx, index=False)
-    print(f'Datasets inventory was successfully exported to {filename1_xlsx}.')
-    filename1_json: str = f'./../inventories/datasets_inventory_{timestamp}.json'
-    datasets.to_json(filename1_json, index=False)
-    print(f'Datasets inventory was successfully exported to {filename1_json}.')
+    filename1: str = f'./../inventories/datasets_inventory_{timestamp}.csv'
+    datasets.to_csv(filename1, index=False, encoding='utf_8_sig')
+    print(f'Datasets inventory was successfully exported to {filename1}.')
+    # filename1_xlsx: str = f'./../inventories/datasets_inventory_{timestamp}.xlsx'
+    # datasets.to_excel(filename1_xlsx, index=False)
+    # print(f'Datasets inventory was successfully exported to {filename1_xlsx}.')
+    # filename1_json: str = f'./../inventories/datasets_inventory_{timestamp}.json'
+    # datasets.to_json(filename1_json, index=False)
+    # print(f'Datasets inventory was successfully exported to {filename1_json}.')
 
-    filename2_xlsx: str = f'./../inventories/resources_inventory_{timestamp}.xlsx'
-    resources.to_excel(filename2_xlsx, index=False)
-    print(f'Resources inventory was successfully exported to {filename2_xlsx}.')
-    filename2_json: str = f'./../inventories/resources_inventory_{timestamp}.json'
-    resources.to_json(filename2_json, index=False)
-    print(f'Resources inventory was successfully exported to {filename2_json}.')
+    filename2: str = f'./../inventories/resources_inventory_{timestamp}.csv'
+    resources.to_csv(filename2, index=False, encoding='utf_8_sig')
+    print(f'Resources inventory was successfully exported to {filename2}.')
+    # filename2_xlsx: str = f'./../inventories/resources_inventory_{timestamp}.xlsx'
+    # resources.to_excel(filename2_xlsx, index=False)
+    # print(f'Resources inventory was successfully exported to {filename2_xlsx}.')
+    # filename2_json: str = f'./../inventories/resources_inventory_{timestamp}.json'
+    # resources.to_json(filename2_json, index=False)
+    # print(f'Resources inventory was successfully exported to {filename2_json}.')
 
 
 if __name__ == '__main__':

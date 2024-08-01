@@ -19,6 +19,8 @@ class TestMain(unittest.TestCase):
         validated = df1.compare(df2).empty
         if not validated:
             print('Difference found between result and expectation:\n')
+            if 'url' in df1.columns:
+                print(f'url: {df1.loc[0, 'url']}')
             print(df1.compare(df2))
         self.assertTrue(validated)
 
@@ -107,11 +109,11 @@ class TestMain(unittest.TestCase):
             resource = registry.get_resource(id)
             expected = test_resources.loc[[i]].copy()
             # not testing url status; sometimes 302~200 is unstable
-            expected.drop(columns=['url_status'], inplace=True)
+            # expected.drop(columns=['url_status'], inplace=True)
             expected.reset_index(drop=True, inplace=True)
             result = pd.DataFrame(columns=RESOURCES_COLS)
             add_resource(resource, result, lock)
-            result.drop(columns=['url_status'], inplace=True)
+            # result.drop(columns=['url_status'], inplace=True)
             self.assert_and_see_differences(result, expected)
 
     def test_collect_dataset(self):
@@ -144,11 +146,11 @@ class TestMain(unittest.TestCase):
             id = resources_IDs[i]
             expected_resources = resources.loc[[i]]
             # not testing url status; sometimes 302~200 is unstable
-            expected_resources.drop(columns=['url_status'], inplace=True)
+            # expected_resources.drop(columns=['url_status'], inplace=True)
             expected_resources.reset_index(drop=True, inplace=True)
             actual_resources = pd.DataFrame(columns=RESOURCES_COLS)
             collect_resource(catalogue, id, actual_resources, lock)
-            actual_resources.drop(columns=['url_status'], inplace=True)
+            # actual_resources.drop(columns=['url_status'], inplace=True)
             self.assert_and_see_differences(actual_resources, expected_resources)
 
 if __name__ == '__main__':

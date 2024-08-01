@@ -1,17 +1,17 @@
 [
   {
-    "id":"36538a7f-0538-4322-99b2-232f105e5d4b",
-    "title_en":"Nova Scotia original metadata (https:\/\/data.novascotia.ca)",
-    "title_fr":"M\u00e9tadonn\u00e9es originales de la Nouvelle-\u00c9cosse (https:\/\/data.novascotia.ca)",
-    "created":"2024-07-24T14:02:54.359508",
-    "metadata_modified":"2024-07-24T14:02:54.335285",
-    "format":"HTML",
+    "id":"fb9f9f0c-2ecf-49eb-9423-447633826a36",
+    "title_en":"Data Product Specification (English)",
+    "title_fr":"Sp\u00e9cifications du produit (Anglais)",
+    "created":"2024-06-17T19:41:24.045690",
+    "metadata_modified":"2024-06-17T19:41:24.025222",
+    "format":"PDF",
     "en":true,
     "fr":false,
-    "package_id":"4692f9b0-cb81-ef64-8557-ea9a7c121b1a",
-    "resource_type":"dataset",
-    "url":"https:\/\/data.novascotia.ca\/datasets\/qe6v-dshu",
-    "url_status":null
+    "package_id":"b3b9cb76-03c5-4d14-a240-220941d5a2de",
+    "resource_type":"guide",
+    "url":"https:\/\/agriculture.canada.ca\/atlas\/data_donnees\/bimat\/supportdocument_documentdesupport\/en\/ISO_19131_Biomass_Inventory_Mapping_and_Analysis_Tool_Business_Data_Data_Product_Specification.pdf",
+    "url_status":200
   },
   {
     "id":"3ace1abf-6a36-4dd7-bcce-6b07d464c8bd",
@@ -25,20 +25,20 @@
     "package_id":"86f0ccf6-585f-4c90-9c22-1cff0bc68e73",
     "resource_type":"fact_sheet",
     "url":"https:\/\/www.justice.gc.ca\/fra\/pr-rp\/jr\/pf-jf\/2019\/mar03.html",
-    "url_status":null
+    "url_status":200
   },
   {
-    "id":"50d76429-96c2-4022-ad09-1b14a4d076fc",
-    "title_en":"Appearance of the Commissioner before the Standing Committee on Public Accounts (PACP): January 28, 2021",
-    "title_fr":"Comparution de la Commissaire devant le Comit\u00e9 permanent des comptes publics (PACP) : 28 janvier 2021",
-    "created":"2024-03-15T18:51:56.366824",
-    "metadata_modified":"2024-03-18T17:34:37.799972",
-    "format":"HTML",
+    "id":"9f4eeb8e-4511-497b-9cf2-02994850cf42",
+    "title_en":"Data Product Specification (French)",
+    "title_fr":"Sp\u00e9cifications du produit (fran\u00e7ais)",
+    "created":"2024-06-17T19:41:23.247834",
+    "metadata_modified":"2024-06-17T19:41:23.235676",
+    "format":"PDF",
     "en":false,
     "fr":true,
-    "package_id":"c5fa7eae-c52c-4d43-ac4b-aa40217f9258",
-    "resource_type":"briefing_material",
-    "url":"https:\/\/www.canada.ca\/fr\/service-correctionnel\/organisation\/transparence\/divulgation-proactive\/cahiers-information\/2021-01-28-pacp.html",
-    "url_status":null
+    "package_id":"62a834d8-a800-4ea7-af43-17b523c56433",
+    "resource_type":"guide",
+    "url":"https:\/\/agriculture.canada.ca\/atlas\/data_donnees\/biologicalCollections\/supportdocument_documentdesupport\/fr\/Collections biologiques_d_Agriculture_et_Agroalimentaire_Canada_–_SPC_ISO_19131.pdf",
+    "url_status":200
   }
 ]
