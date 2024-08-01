@@ -153,5 +153,24 @@ class TestMain(unittest.TestCase):
             # actual_resources.drop(columns=['url_status'], inplace=True)
             self.assert_and_see_differences(actual_resources, expected_resources)
 
+    def test_check_currency(self):
+
+        datasets = pd.read_json('.\\test_files\\datasets_needs_update.json', 
+                            dtype={"expected_up_to_date":bool})
+        resources = pd.read_json('.\\test_files\\resources_needs_update.json')
+
+        for _, dataset in datasets.iterrows():
+            ds = dataset[DATASETS_COLS]
+            if ds['id'] == 'b8cfc949-501a-4c04-a265-bfe844f41979':
+                ds['expected_up_to-date'] = None
+            now = dt.datetime.strptime(dataset['now'], "%Y-%m-%d %H:%M:%S")
+            expected = dataset['expected_up_to_date']
+            if ds['id'] == 'b8cfc949-501a-4c04-a265-bfe844f41979':
+                expected = None
+                continue    # remove continue to test issue message
+                            # when reading unreadable frequencies
+            result = check_currency(ds, resources, now=now)
+            self.assertEqual(result, expected)
+
 if __name__ == '__main__':
     unittest.main()

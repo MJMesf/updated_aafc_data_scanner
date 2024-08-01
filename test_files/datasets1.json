@@ -10,7 +10,7 @@
     "maintainer_email":"open-ouvert@tbs-sct.gc.ca",
     "collection":"publication",
     "frequency":"not_planned",
-    "needs_update":null
+    "up_to_date":null
   },
   {
     "id":"de1f8f2a-2899-4469-8545-f247c717d112",
@@ -23,6 +23,6 @@
     "maintainer_email":"Christian.MacQuarrie@nrcan-rncan.gc.ca",
     "collection":"primary",
     "frequency":"not_planned",
-    "needs_update":null
+    "up_to_date":null
   }
 ]

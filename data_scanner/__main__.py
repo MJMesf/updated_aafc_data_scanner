@@ -32,7 +32,7 @@ AAFC_ORG_ID = '2ABCCA59-6C57-4886-99E7-85EC6C719218'
 DATASETS_COLS = ['id', 'title_en', 'title_fr', 'date_published', 
                  'metadata_created', 'metadata_modified' , 
                  'num_resources', 'maintainer_email', 'collection',
-                 'frequency', 'needs_update']
+                 'frequency', 'up_to_date']
 RESOURCES_COLS = ['id', 'title_en', 'title_fr', 
                   'created', 'metadata_modified', 'format', 'en', 'fr', 
                   'package_id', 'resource_type', 'url', 'url_status']
@@ -143,7 +143,7 @@ def add_dataset(dataset: dict, datasets: pd.DataFrame,
         'maintainer_email': dataset['maintainer_email'],
         'collection': dataset['collection'],
         'frequency': dataset['frequency'],
-        'needs_update': None # TO BE IMPLEMENTED (using frequency)
+        'up_to_date': None # Computed later from resources info
     }
     lock.acquire()
     datasets.loc[len(datasets)] = record # type: ignore
@@ -233,6 +233,56 @@ def collect_resource(catalogue: DataCatalogue, id: str,
         pbar.update()
 
 
+
+def check_currency(ds: pd.Series, all_resources: pd.DataFrame,
+                   now: dt.datetime = dt.datetime.now()) -> None:
+    """Returns True if the dataset is up to date, False if it needs to be 
+    updated, and None if the frequency could not be read.
+    """
+    
+    # Computing oldest date considered as valid to be up to date
+    frequency: str = ds['frequency']
+    if frequency.startswith('P') and frequency != 'PT1S':
+        duration: dt.timedelta
+        unit: str = frequency[-1] # e.g. Y, M, W, D ...
+        number: float = float(frequency[1:-1]) # e.g. 1, 2, 0.5 ...
+        match unit:
+            case 'Y':
+                duration = dt.timedelta(days=number*365.25)
+            case 'M':
+                duration = dt.timedelta(days=number*30.43)
+            case 'W':
+                duration = dt.timedelta(weeks=number)
+            case 'D':
+                duration = dt.timedelta(days=number)
+            case _:
+                print(f'\nFrequency parsing Error in Dataset: {ds['id']}')
+                print(f'Dataset info: {ds}\n')
+                return None
+        oldest_valid_update: dt.datetime = now - duration
+    else:
+        return True
+
+    # Getting last modified date, based on resources
+    last_modified: dt.datetime
+    resources = all_resources[all_resources['package_id'] == ds['id']]
+    modified_dates: List[dt.datetime] = []
+    for _, res in resources.iterrows():
+        modified_field = res['metadata_modified']
+        if pd.notnull(modified_field):
+            modified_date = dt.datetime.strptime(
+                modified_field, '%Y-%m-%dT%H:%M:%S.%f')
+            modified_dates.append(modified_date)
+    if len(modified_dates) == 0:
+        last_modified = dt.datetime.strptime(
+            # dataset publication date by default if no metata_modified completed
+            ds['date_published'], '%Y-%m-%d %H:%M:%S')
+    else:
+        last_modified = max(modified_dates) # latest date
+    
+    return last_modified >= oldest_valid_update
+
+
 def main() -> None:
     
     # Problem accessing AAFC's Open Data Catalogue; TO BE FIXED LATER !!!
@@ -303,6 +353,14 @@ def main() -> None:
     resources.reset_index(drop=True, inplace=True)
     print(f'-- All {len(resources)} resources\' information was collected.  ({end-start:.2f}s)')
 
+
+    # Compute up_to_date for datasets
+    print()
+    print("Computing datasets' currency (i.e. checking if datasets are up to date).")
+    datasets['up_to_date'] = datasets.apply(lambda x: check_currency(x, resources), axis=1)
+    print("Inventories are ready.")
+
+
     # Exporting inventories
     
     print()
@@ -310,22 +368,10 @@ def main() -> None:
     filename1: str = f'./../inventories/datasets_inventory_{timestamp}.csv'
     datasets.to_csv(filename1, index=False, encoding='utf_8_sig')
     print(f'Datasets inventory was successfully exported to {filename1}.')
-    # filename1_xlsx: str = f'./../inventories/datasets_inventory_{timestamp}.xlsx'
-    # datasets.to_excel(filename1_xlsx, index=False)
-    # print(f'Datasets inventory was successfully exported to {filename1_xlsx}.')
-    # filename1_json: str = f'./../inventories/datasets_inventory_{timestamp}.json'
-    # datasets.to_json(filename1_json, index=False)
-    # print(f'Datasets inventory was successfully exported to {filename1_json}.')
 
     filename2: str = f'./../inventories/resources_inventory_{timestamp}.csv'
     resources.to_csv(filename2, index=False, encoding='utf_8_sig')
     print(f'Resources inventory was successfully exported to {filename2}.')
-    # filename2_xlsx: str = f'./../inventories/resources_inventory_{timestamp}.xlsx'
-    # resources.to_excel(filename2_xlsx, index=False)
-    # print(f'Resources inventory was successfully exported to {filename2_xlsx}.')
-    # filename2_json: str = f'./../inventories/resources_inventory_{timestamp}.json'
-    # resources.to_json(filename2_json, index=False)
-    # print(f'Resources inventory was successfully exported to {filename2_json}.')
 
 
 if __name__ == '__main__':
