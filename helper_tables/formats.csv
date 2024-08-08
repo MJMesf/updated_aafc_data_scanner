@@ -1,0 +1,122 @@
+format,format_type,color_code
+AAC,Audio,#8000FF
+AIFF,Audio,#8000FF
+Android Application,Application,#000000
+APRX,Geospatial Data,#6CB7FD
+ASCII Grid,Text Document,#12239E
+AVI,Video,#FF8700
+BAG,Geospatial Data,#6CB7FD
+BAM,Specialized Format,#C7B8E7
+Blackerry Application,Application,#000000
+BMP,Image,#FFCC00
+BWF,Audio,#8000FF
+CCT,Specialized Format,#C7B8E7
+CDED ASCII,Geospatial Data,#6CB7FD
+CDF,Specialized Format,#C7B8E7
+CDR,Image,#FFCC00
+COG,Geospatial Data,#6CB7FD
+CSV,Structured Data,#1B8C00
+DBD,Database,#BC6849
+DBF,Database,#BC6849
+DICOM,Image,#FFCC00
+DNG,Image,#FFCC00
+DOC,Text Document,#12239E
+DOCX,Text Document,#12239E
+DXF,Specialized Format,#C7B8E7
+E00,Geospatial Data,#6CB7FD
+ECW,Geospatial Data,#6CB7FD
+EDI,Specialized Format,#C7B8E7
+EMF,Image,#FFCC00
+EPS,Image,#FFCC00
+EPUB2,Text Document,#12239E
+EPUB3,Text Document,#12239E
+ESRI REST,Geospatial Data,#6CB7FD
+FGDB/GDB,Geospatial Data,#6CB7FD
+FITS,Specialized Format,#C7B8E7
+Flat raster binary,Geospatial Data,#6CB7FD
+GEOJSON,Geospatial Data,#6CB7FD
+GeoPackage,Geospatial Data,#6CB7FD
+GeoPDF,Geospatial Data,#6CB7FD
+GeoRSS,Geospatial Data,#6CB7FD
+GeoSoftDatabases,Geospatial Data,#6CB7FD
+GeoSoftGrids,Geospatial Data,#6CB7FD
+GeoTIF,Geospatial Data,#6CB7FD
+GIF,Image,#FFCC00
+GML,Geospatial Data,#6CB7FD
+GRIB1,Geospatial Data,#6CB7FD
+GRIB2,Geospatial Data,#6CB7FD
+Gzip,Archive,#999999
+HDF,Database,#BC6849
+HTML,Web Page,#FF5DC3
+IATI,Structured Data,#1B8C00
+iOS Application,Application,#000000
+JAR,Archive,#999999
+JFIF,Image,#FFCC00
+JP2,Image,#FFCC00
+JPG,Image,#FFCC00
+JSON,Structured Data,#1B8C00
+JSONL,Structured Data,#1B8C00
+JSON-LD,Linked Data,#00FF64
+KML,Geospatial Data,#6CB7FD
+KMZ,Geospatial Data,#6CB7FD
+LAS,Geospatial Data,#6CB7FD
+LYR,Geospatial Data,#6CB7FD
+MapInfo,Geospatial Data,#6CB7FD
+MAPX,Geospatial Data,#6CB7FD
+MFX,Video,#FF8700
+MOV,Video,#FF8700
+MPEG,Video,#FF8700
+MPEG-1,Video,#FF8700
+MP3,Audio,#8000FF
+MXD,Geospatial Data,#6CB7FD
+NetCDF,Geospatial Data,#6CB7FD
+ODP,Presentation,#DE2700
+ODS,Structured Data,#1B8C00
+ODT,Text Document,#12239E
+Other,Specialized Format,#C7B8E7
+PBF,Geospatial Data,#6CB7FD
+PBIX,Specialized Format,#C7B8E7
+PDF,Text Document,#12239E
+PDF/A-1,Text Document,#12239E
+PDF/A-2,Text Document,#12239E
+PDF/UA,Text Document,#12239E
+PNG,Image,#FFCC00
+PPT,Presentation,#DE2700
+PPTX,Presentation,#DE2700
+QLR,Geospatial Data,#6CB7FD
+RDF,Linked Data,#00FF64
+RDF n-triples,Linked Data,#00FF64
+RDF Turtle,Linked Data,#00FF64
+RDFa,Linked Data,#00FF64
+RSS,Linked Data,#00FF64
+RTF,Text Document,#12239E
+SAM,Specialized Format,#C7B8E7
+SAR,Specialized Format,#C7B8E7
+SAS,Specialized Format,#C7B8E7
+SAV,Specialized Format,#C7B8E7
+SEGY,Geospatial Data,#6CB7FD
+SHP,Geospatial Data,#6CB7FD
+SQL,Database,#BC6849
+SQL Lite,Database,#BC6849
+SQL Lite3,Database,#BC6849
+SVG,Image,#FFCC00
+TFW,Geospatial Data,#6CB7FD
+TIFF,Image,#FFCC00
+TRIG,Linked Data,#00FF64
+TRIX,Linked Data,#00FF64
+TSV,Structured Data,#1B8C00
+TXT,Text Document,#12239E
+Unknown,Specialized Format,#C7B8E7
+VPF,Geospatial Data,#6CB7FD
+WAV,Audio,#8000FF
+WCS,Geospatial Data,#6CB7FD
+WFS,Geospatial Data,#6CB7FD
+WMS,Geospatial Data,#6CB7FD
+WMTS,Geospatial Data,#6CB7FD
+WMV,Video,#FF8700
+WPS,Text Document,#12239E
+XLS,Structured Data,#1B8C00
+XLSM,Structured Data,#1B8C00
+XLSX,Structured Data,#1B8C00
+XML,Structured Data,#1B8C00
+ZIP,Archive,#999999

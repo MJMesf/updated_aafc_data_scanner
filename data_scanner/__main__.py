@@ -11,6 +11,7 @@ import atexit
 import concurrent.futures
 import datetime as dt
 import pandas as pd
+import re
 import requests
 import threading
 import time
@@ -19,23 +20,49 @@ import urllib3
 from dataclasses import dataclass
 from requests.adapters import HTTPAdapter, Retry
 from tqdm import tqdm
-from typing import List, Dict, Any, Optional
-from tenacity import retry, stop_after_attempt, wait_exponential
+from typing import List, Any
+
+from .inventory_functions import *
 
 
-AAFC_ODC_BASE_URL = 'https://data-catalogue-donnees.agr.gc.ca/api/3/action/'
+CATALOGUE_BASE_URL = 'https://data-catalogue-donnees.agr.gc.ca/api/3/action/'
 """Base url to send API requests to AAFC Open Data Catalogue"""
+CATALOGUE_DATASETS_BASE_URL = \
+    'https://data-catalogue-donnees.agr.gc.ca/aafc-open-data/{}'
+"""Base url to open a dataset on the AAFC Open Data Catalogue, 
+to format with its id
+"""
+CATALOGUE_RESOURCES_BASE_URL = \
+    'https://data-catalogue-donnees.agr.gc.ca/aafc-open-data/{}/resource/{}'
+"""Base url to open a resource on the AAFC Open Data Catalogue, 
+to format with its package/datasets id, along with the resource id
+"""
+
 REGISTRY_BASE_URL = 'https://open.canada.ca/data/api/3/action/'
 """Base url to send API requests to open.canada.ca"""
+REGISTRY_DATASETS_BASE_URL = \
+    'https://open.canada.ca/data/en/dataset/{}'
+"""Base url to open a dataset on the registry (open.canada.ca), 
+to format with its id
+"""
+REGISTRY_RESOURCES_BASE_URL = \
+    'https://open.canada.ca/data/en/dataset/{}/resource/{}'
+"""Base url to open a resource on the registry (open.canada.ca), 
+to format with its package/datasets id, along with the resource id
+"""
+
 AAFC_ORG_ID = '2ABCCA59-6C57-4886-99E7-85EC6C719218'
 """ID of the organization AAFC on the Open Registry"""
-DATASETS_COLS = ['id', 'title_en', 'title_fr', 'date_published', 
+
+DATASETS_COLS = ['id', 'title_en', 'title_fr', 'published', 'modified',
                  'metadata_created', 'metadata_modified' , 
-                 'num_resources', 'maintainer_email', 'collection',
-                 'frequency', 'up_to_date']
-RESOURCES_COLS = ['id', 'title_en', 'title_fr', 
-                  'created', 'metadata_modified', 'format', 'en', 'fr', 
-                  'package_id', 'resource_type', 'url', 'url_status']
+                 'num_resources', 'maintainer_email', 'maintainer_name',
+                 'collection', 'frequency', 'currency', 'official_langs',
+                 'registry_link', 'catalogue_link']
+RESOURCES_COLS = ['id', 'title_en', 'title_fr', 'created', 
+                  'metadata_modified', 'format', 'langs', 
+                  'dataset_id', 'resource_type', 'url', 'url_status',
+                  'registry_link', 'catalogue_link']
 
 # Request Session Preparation (to avoid connection errors 5XX)
 session = requests.Session()
@@ -129,115 +156,39 @@ def request(url: str) -> Any:
     return data['result']
 
 
-def add_dataset(dataset: dict, datasets: pd.DataFrame,
-                lock: threading.Lock) -> None:
-    """Adds the given dataset's information to the datasets dataframe."""
-    record: Dict[str, Any] = {
-        'id': dataset['id'],
-        'title_en': dataset['title_translated']['en'],
-        'title_fr': dataset['title_translated']['fr'],
-        'date_published': dataset['date_published'],
-        'metadata_created': dataset['metadata_created'],
-        'metadata_modified': dataset['metadata_modified'],
-        'num_resources': dataset['num_resources'],
-        'maintainer_email': dataset['maintainer_email'],
-        'collection': dataset['collection'],
-        'frequency': dataset['frequency'],
-        'up_to_date': None # Computed later from resources info
-    }
-    lock.acquire()
-    datasets.loc[len(datasets)] = record # type: ignore
-    lock.release()
-
-def add_resource_ID(dataset: dict, resources_IDs: List[str], 
-                    resources_IDs_lock: threading.Lock) -> None:
-    """Adds all of the given dataset's resources IDs to the given general 
-    list of resources IDs.
+def infer_name_from_email(email: str) -> str:
+    """Infer name of the email owner from the given email address 
+    (split and capitalize words before @).
     """
-    resources_IDs_sublist: List[str] = [
-        res['id'] for res in dataset['resources']
-    ]
-    resources_IDs_lock.acquire()
-    resources_IDs.extend(resources_IDs_sublist)
-    resources_IDs_lock.release()
-
-def add_resource(resource: dict, resources: pd.DataFrame, 
-                 lock: threading.Lock) -> None:
-    """Inserts the given dataset's information in the resources dataframe."""
-
-    try:
-        # head requests the headers of the url (including the status code), 
-        # without loading the whole page
-        url_status: int = get_head_and_retry(resource['url']).status_code
-        
-        record: Dict[str, Any] = {
-            'id': resource['id'],
-            'title_en': resource['name'],
-            'title_fr': None, # special field (key changes depending on resource)
-            'created': resource['created'],
-            'metadata_modified': None, # non-mandatory field
-            'format': resource['format'],
-            'en': "en" in resource['language'],
-            'fr': "fr" in resource['language'],
-            'package_id': resource['package_id'],
-            'resource_type': resource['resource_type'],
-            'url': resource['url'],
-            'url_status': url_status
-        }
-        # non-mandatory and special fieldsL
-        if 'metadata_modified' in resource.keys():
-            record['metadata_modified'] = resource['metadata_modified']   
-        if 'fr' in resource['name_translated'].keys():
-            record['title_fr'] = resource['name_translated']['fr']   
-        elif 'fr-t-en' in resource['name_translated'].keys():
-            record['title_fr'] = resource['name_translated']['fr-t-en'] 
-
-        lock.acquire()
-        resources.loc[len(resources)] = record # type: ignore
-        lock.release()
-    except Exception as e:
-        print(type(e))
-        print(e.args)
-        print(e)
+    name: str = ' '.join(re.split(r'[.\-_]', email.split('@')[0].lower()))
+    return name.title()
 
 
-
-def collect_dataset(catalogue: DataCatalogue, id: str,
-                     datasets: pd.DataFrame, datasets_lock: threading.Lock,
-                     resources_IDs: List[str], 
-                     resources_IDs_lock: threading.Lock,
-                     pbar: Optional[tqdm] = None) -> None:
-    """Fetches the dataset's relevant information from the online given catalogue,
-    adds it to the given datasets inventory, and adds the lists of its resources IDs
-    to the given resources IDs list
+def get_modified(ds: pd.Series, all_resources: pd.DataFrame) -> str:
+    """Returns last date modified of the dataset ds, given the last 
+    metadata_modified dates of its resources
     """
-    dataset: dict = catalogue.get_dataset(id)
-    # adds dataset to the common dataframe
-    add_dataset(dataset, datasets, datasets_lock)
-    # adds its resources IDs to the list of resources IDs
-    add_resource_ID(dataset, resources_IDs, resources_IDs_lock)
-    if isinstance(pbar, tqdm): # false if pbar == None
-        pbar.update()
-
-def collect_resource(catalogue: DataCatalogue, id: str,
-                      resources: pd.DataFrame, 
-                      lock: threading.Lock, 
-                      pbar: Optional[tqdm] = None) -> None:
-    """Fetches the resource's relevant information from the online given catalogue
-    and adds it to the given resources inventory.
-    """
-    resource: dict = catalogue.get_resource(id)
-    # adds resource to the common dataframe
-    add_resource(resource, resources, lock)
-    if isinstance(pbar, tqdm): # false if pbar == None
-        pbar.update()
-
-
+    last_modified: dt.datetime
+    resources = all_resources[all_resources['dataset_id'] == ds['id']]
+    modified_dates: List[dt.datetime] = []
+    for _, res in resources.iterrows():
+        modified_field = res['metadata_modified']
+        if pd.notnull(modified_field):
+            modified_date = dt.datetime.strptime(
+                modified_field, '%Y-%m-%dT%H:%M:%S.%f')
+            modified_dates.append(modified_date)
+    if len(modified_dates) == 0:
+        last_modified = dt.datetime.strptime(
+            # dataset publication date by default if no metata_modified completed
+            ds['published'], '%Y-%m-%dT%H:%M:%S')
+    else:
+        last_modified = max(modified_dates) # latest date
+    return last_modified.isoformat()
 
 def check_currency(ds: pd.Series, all_resources: pd.DataFrame,
-                   now: dt.datetime = dt.datetime.now()) -> None:
-    """Returns True if the dataset is up to date, False if it needs to be 
-    updated, and None if the frequency could not be read.
+                   now: dt.datetime = dt.datetime.now()) -> str:
+    """Returns 'Up to date', 'Needs update' or 'Error reading frequency' 
+    depending on the frequency and last date modified of the dataset.
     """
     
     # Computing oldest date considered as valid to be up to date
@@ -258,30 +209,17 @@ def check_currency(ds: pd.Series, all_resources: pd.DataFrame,
             case _:
                 print(f'\nFrequency parsing Error in Dataset: {ds['id']}')
                 print(f'Dataset info: {ds}\n')
-                return None
+                return 'Error reading frequency'
         oldest_valid_update: dt.datetime = now - duration
     else:
-        return True
+        return 'Up to date'
 
     # Getting last modified date, based on resources
-    last_modified: dt.datetime
-    resources = all_resources[all_resources['package_id'] == ds['id']]
-    modified_dates: List[dt.datetime] = []
-    for _, res in resources.iterrows():
-        modified_field = res['metadata_modified']
-        if pd.notnull(modified_field):
-            modified_date = dt.datetime.strptime(
-                modified_field, '%Y-%m-%dT%H:%M:%S.%f')
-            modified_dates.append(modified_date)
-    if len(modified_dates) == 0:
-        last_modified = dt.datetime.strptime(
-            # dataset publication date by default if no metata_modified completed
-            ds['date_published'], '%Y-%m-%d %H:%M:%S')
+    last_modified = dt.datetime.fromisoformat(ds['modified'])
+    if last_modified >= oldest_valid_update:
+        return 'Up to date'
     else:
-        last_modified = max(modified_dates) # latest date
-    
-    return last_modified >= oldest_valid_update
-
+        return 'Needs update'
 
 def main() -> None:
     
@@ -296,6 +234,7 @@ def main() -> None:
     # Creating resources inventory
     resources_IDs: List[str] = []
     resources = pd.DataFrame(columns=RESOURCES_COLS)
+
 
     # Collecting information of all datasets published by AAFC:
 
@@ -323,10 +262,11 @@ def main() -> None:
     pbar1.close()
     end = time.time() # ends datasets collection timer
 
-    datasets.sort_values(by='date_published', ascending=False, inplace=True)
+    datasets.sort_values(by='published', ascending=False, inplace=True)
     datasets.reset_index(drop=True, inplace=True)
     print(f'-- All {len(datasets_IDs)} datasets\' information was collected.')
     print(f'   {len(resources_IDs)} associated resources were listed.  ({end-start:.2f}s)')
+
 
     # Collecting information of all associated resources:
 
@@ -349,17 +289,23 @@ def main() -> None:
     pbar2.close()
     end = time.time() # end of resources collection
 
-    resources.sort_values(by='package_id', inplace=True)
+    resources.sort_values(by='dataset_id', inplace=True)
     resources.reset_index(drop=True, inplace=True)
     print(f'-- All {len(resources)} resources\' information was collected.  ({end-start:.2f}s)')
 
 
-    # Compute up_to_date for datasets
-    print()
-    print("Computing datasets' currency (i.e. checking if datasets are up to date).")
-    datasets['up_to_date'] = datasets.apply(lambda x: check_currency(x, resources), axis=1)
-    print("Inventories are ready.")
+    # Computes missing fields of datasets inventories
 
+    # Compute modified for datasets
+    print()
+    print('Completing "modified" column of the datasets')
+    datasets['modified'] = datasets.apply(lambda x: get_modified(x, resources), axis=1)
+    # Compute currency for datasets
+    print("Computing datasets' currency (i.e. checking if datasets are up to date).")
+    datasets['currency'] = datasets.apply(lambda x: check_currency(x, resources), axis=1)
+    # Complete official_langs
+    pass            # to implement later
+    print("Inventories are ready.")
 
     # Exporting inventories
     
