@@ -6,12 +6,13 @@
     "created":"2024-06-17T19:41:24.045690",
     "metadata_modified":"2024-06-17T19:41:24.025222",
     "format":"PDF",
-    "en":true,
-    "fr":false,
-    "package_id":"b3b9cb76-03c5-4d14-a240-220941d5a2de",
+    "langs":"en",
+    "dataset_id":"b3b9cb76-03c5-4d14-a240-220941d5a2de",
     "resource_type":"guide",
     "url":"https:\/\/agriculture.canada.ca\/atlas\/data_donnees\/bimat\/supportdocument_documentdesupport\/en\/ISO_19131_Biomass_Inventory_Mapping_and_Analysis_Tool_Business_Data_Data_Product_Specification.pdf",
-    "url_status":200
+    "url_status":200,
+    "registry_link":"https://open.canada.ca/data/en/dataset/b3b9cb76-03c5-4d14-a240-220941d5a2de/resource/fb9f9f0c-2ecf-49eb-9423-447633826a36",
+    "catalogue_link":"https://data-catalogue-donnees.agr.gc.ca/aafc-open-data/b3b9cb76-03c5-4d14-a240-220941d5a2de/resource/fb9f9f0c-2ecf-49eb-9423-447633826a36"
   },
   {
     "id":"3ace1abf-6a36-4dd7-bcce-6b07d464c8bd",
@@ -20,12 +21,13 @@
     "created":"2019-07-24T14:35:53.040967",
     "metadata_modified":null,
     "format":"HTML",
-    "en":false,
-    "fr":true,
-    "package_id":"86f0ccf6-585f-4c90-9c22-1cff0bc68e73",
+    "langs":"fr",
+    "dataset_id":"86f0ccf6-585f-4c90-9c22-1cff0bc68e73",
     "resource_type":"fact_sheet",
     "url":"https:\/\/www.justice.gc.ca\/fra\/pr-rp\/jr\/pf-jf\/2019\/mar03.html",
-    "url_status":200
+    "url_status":200,
+    "registry_link":"https://open.canada.ca/data/en/dataset/86f0ccf6-585f-4c90-9c22-1cff0bc68e73/resource/3ace1abf-6a36-4dd7-bcce-6b07d464c8bd",
+    "catalogue_link":"https://data-catalogue-donnees.agr.gc.ca/aafc-open-data/86f0ccf6-585f-4c90-9c22-1cff0bc68e73/resource/3ace1abf-6a36-4dd7-bcce-6b07d464c8bd"
   },
   {
     "id":"9f4eeb8e-4511-497b-9cf2-02994850cf42",
@@ -34,11 +36,12 @@
     "created":"2024-06-17T19:41:23.247834",
     "metadata_modified":"2024-06-17T19:41:23.235676",
     "format":"PDF",
-    "en":false,
-    "fr":true,
-    "package_id":"62a834d8-a800-4ea7-af43-17b523c56433",
+    "langs":"fr",
+    "dataset_id":"62a834d8-a800-4ea7-af43-17b523c56433",
     "resource_type":"guide",
     "url":"https:\/\/agriculture.canada.ca\/atlas\/data_donnees\/biologicalCollections\/supportdocument_documentdesupport\/fr\/Collections biologiques_d_Agriculture_et_Agroalimentaire_Canada_–_SPC_ISO_19131.pdf",
-    "url_status":200
+    "url_status":200,
+    "registry_link":"https://open.canada.ca/data/en/dataset/62a834d8-a800-4ea7-af43-17b523c56433/resource/9f4eeb8e-4511-497b-9cf2-02994850cf42",
+    "catalogue_link":"https://data-catalogue-donnees.agr.gc.ca/aafc-open-data/62a834d8-a800-4ea7-af43-17b523c56433/resource/9f4eeb8e-4511-497b-9cf2-02994850cf42"
   }
 ]

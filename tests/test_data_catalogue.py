@@ -3,6 +3,7 @@ intended to be run from project's top folder using:
   py -m unittest tests.test_data_catalogue
 """
 
+from data_scanner.constants import *
 from data_scanner.__main__ import *
 
 import unittest
