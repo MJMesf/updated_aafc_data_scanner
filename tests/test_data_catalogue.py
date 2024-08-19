@@ -64,8 +64,8 @@ class TestDataCatalogue(unittest.TestCase):
 
         registry = DataCatalogue(REGISTRY_BASE_URL)
 
-        id1 = '8aaba0de-732d-4078-bb30-e6b77a1239eb'
-        name1 = 'Toxics Reduction Act – Living List status of nominations'
+        id1 = 'a59fa2be-d0e5-4209-990c-cafe11c7286e'
+        name1 = 'Data Product Specification (French)'
         result1 = registry.get_resource(id1)
         self.assertEqual(result1['id'], id1)
         self.assertEqual(result1['name'], name1)

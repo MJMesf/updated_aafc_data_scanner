@@ -190,7 +190,7 @@ class TestMain(unittest.TestCase):
                 print(f'Expected: {expected}\n')
             self.assertEqual(result, expected)
 
-    def test_check_currency(self):
+    def test_get_currency(self):
 
         datasets = pd.read_json('.\\test_files\\datasets_currency.json', 
                                 dtype={'modified': str})
@@ -203,14 +203,14 @@ class TestMain(unittest.TestCase):
                 expected = None
                 continue    # remove continue to test issue message
                             # when reading unreadable frequencies
-            result = check_currency(ds, now=now)
+            result = get_currency(ds, now=now)
             if result != expected:
                 print(f'\nDifference for id #{ds['id']}:')
                 print(f'Result: {result}')
                 print(f'Expected: {expected}\n')
             self.assertEqual(result, expected)
     
-    def test_check_official_langs(self):
+    def test_get_official_langs(self):
 
         datasets = pd.read_json('.\\test_files\\datasets_ol.json')
         resources = pd.read_json('.\\test_files\\resources_ol.json')
@@ -218,7 +218,22 @@ class TestMain(unittest.TestCase):
         for _, dataset in datasets.iterrows():
             ds = dataset[DATASETS_COLS]
             expected = dataset['expected_ol']
-            result = check_official_langs(ds, resources)
+            result = get_official_langs(ds, resources)
+            if result != expected:
+                print(f'\n\nDifference for id #{ds['id']}:')
+                print(f'Result: {result}')
+                print(f'Expected: {expected}\n')
+            self.assertEqual(result, expected)
+    
+    def test_get_open_formats(self):
+
+        datasets = pd.read_json('.\\test_files\\datasets_open_formats.json')
+        resources = pd.read_json('.\\test_files\\resources_open_formats.json')
+        
+        for _, dataset in datasets.iterrows():
+            ds = dataset[DATASETS_COLS]
+            expected = dataset['expected_open_formats']
+            result = get_open_formats(ds, resources)
             if result != expected:
                 print(f'\n\nDifference for id #{ds['id']}:')
                 print(f'Result: {result}')

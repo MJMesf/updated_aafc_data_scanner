@@ -31,7 +31,11 @@ retries = Retry(backoff_factor=1, status_forcelist=[500, 502, 503, 504])
 session.mount('http://', HTTPAdapter(max_retries=retries))
 session.mount('https://', HTTPAdapter(max_retries=retries))
 
+# Disable warnings (as non-verified SSL Certificates for the catalogue)
 urllib3.disable_warnings()
+
+# Prepare some helper tables imports for later user
+formats = pd.read_csv('./helper_tables/formats.csv')
 
 
 @dataclass
@@ -268,8 +272,8 @@ def get_modified(ds: pd.Series, all_resources: pd.DataFrame) -> str:
     last_modified = max(modified_dates) # latest date
     return last_modified.isoformat()
 
-def check_currency(ds: pd.Series,
-                   now: dt.datetime = dt.datetime.now()) -> str:
+def get_currency(ds: pd.Series,
+                 now: dt.datetime = dt.datetime.now()) -> str:
     """Returns 'Up to date', 'Needs update' or 'Error reading frequency' 
     depending on the frequency and last date modified of the dataset.
     """
@@ -304,7 +308,7 @@ def check_currency(ds: pd.Series,
     else:
         return 'Needs update'
     
-def check_official_langs(ds: pd.Series, all_resources: pd.DataFrame) -> bool:
+def get_official_langs(ds: pd.Series, all_resources: pd.DataFrame) -> bool:
     """Returns True if dataset ds is compliant with official languages 
     requirements; false otherwise (i.e. checks whether there are as many 
     resources in English as there are in French).
@@ -318,6 +322,23 @@ def check_official_langs(ds: pd.Series, all_resources: pd.DataFrame) -> bool:
         if 'fr' in res['langs']:
             num_fr += 1
     return num_en == num_fr
+
+def get_open_formats(ds: pd.Series, all_resources: pd.DataFrame) -> bool:
+    """Returns True if dataset ds is compliant with open formats 
+    requirements; false otherwise (i.e. checks for each format type, 
+    assuming each format type contains the same data, that at least one
+    type is open).
+    """
+    resources = all_resources[all_resources['dataset_id'] == ds['id']].copy()
+    global formats
+
+    resources = resources.merge(formats, how='left', on='format')
+    for elem in resources.groupby('format_type')['open'].unique():
+        if True not in elem:
+            # if a format type doesn't have a single resource in an open format
+            return False
+
+    return True
 
 
 # MAIN CODE ******************************************************************
@@ -402,12 +423,15 @@ def main() -> None:
     print()
     print('Completing datasets\' modified dates.')
     datasets['modified'] = datasets.apply(lambda ds: get_modified(ds, resources), axis=1)
-    # Compute currency for datasets
-    print('Computing datasets\' currency.')
-    datasets['currency'] = datasets.apply(check_currency, axis=1)
-    # Complete official_langs
+    # Check currency for datasets
+    print('Veritying datasets\' currency.')
+    datasets['currency'] = datasets.apply(get_currency, axis=1)
+    # Check official_langs
     print('Verifying official languages compliancy.')
-    datasets['official_langs'] = datasets.apply(lambda ds: check_official_langs(ds, resources), axis=1)
+    datasets['official_langs'] = datasets.apply(lambda ds: get_official_langs(ds, resources), axis=1)
+    # Check open_formats
+    print('Verifying open formats compliancy.')
+    datasets['open_formats'] = datasets.apply(lambda ds: get_open_formats(ds, resources), axis=1)
     print("Inventories are ready.")
 
     # Exporting inventories

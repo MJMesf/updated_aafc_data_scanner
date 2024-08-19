@@ -32,9 +32,9 @@ AAFC_ORG_ID = '2ABCCA59-6C57-4886-99E7-85EC6C719218'
 """ID of the organization AAFC on the Open Registry"""
 
 DATASETS_COLS = ['id', 'title_en', 'title_fr', 'published', 'modified',
-                 'metadata_created', 'metadata_modified' , 
-                 'num_resources', 'maintainer_email', 'maintainer_name',
-                 'collection', 'frequency', 'currency', 'official_langs',
+                 'metadata_created', 'metadata_modified', 'num_resources', 
+                 'maintainer_email', 'maintainer_name', 'collection', 
+                 'frequency', 'currency', 'official_langs', 'open_formats',
                  'registry_link', 'catalogue_link']
 RESOURCES_COLS = ['id', 'title_en', 'title_fr', 'created', 
                   'metadata_modified', 'format', 'langs', 
