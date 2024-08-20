@@ -15,6 +15,7 @@
     "currency":null,
     "official_langs":null,
     "open_formats":null,
+    "spec_compliance":null,
     "registry_link":"https://open.canada.ca/data/en/dataset/b8cfc949-501a-4c04-a265-bfe844f41972",
     "catalogue_link":"https://data-catalogue-donnees.agr.gc.ca/aafc-open-data/b8cfc949-501a-4c04-a265-bfe844f41972",
     "expected_ol":true
@@ -35,6 +36,7 @@
     "currency":null,
     "official_langs":null,
     "open_formats":null,
+    "spec_compliance":null,
     "registry_link":"https://open.canada.ca/data/en/dataset/de1f8f2a-2899-4469-8545-f247c717d112",
     "catalogue_link":"https://data-catalogue-donnees.agr.gc.ca/aafc-open-data/de1f8f2a-2899-4469-8545-f247c717d112",
     "expected_ol":false
@@ -55,6 +57,7 @@
     "currency":null,
     "official_langs":null,
     "open_formats":null,
+    "spec_compliance":null,
     "registry_link":"https://open.canada.ca/data/en/dataset/de1f8f2a-2899-4469-8545-f247c717d112",
     "catalogue_link":"https://data-catalogue-donnees.agr.gc.ca/aafc-open-data/de1f8f2a-2899-4469-8545-f247c717d112",
     "expected_ol":false

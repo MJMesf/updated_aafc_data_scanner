@@ -31,10 +31,20 @@ def main():
     #         print('Fail')
     # print('Good')
 
-    datasets = pd.read_csv('../inventories/datasets_inventory_2024-08-09_142800.csv')
-    datasets['open_formats'] = datasets.apply(lambda ds: get_open_formats(ds, all_resources), axis=1)
-    print(datasets.loc[datasets['open_formats'] == False, ['id', 'title_en', 'registry_link']])
-    
+    datasets = pd.read_csv('../inventories/datasets_inventory_2024-08-19_153716.csv')
+    all_resources = pd.read_csv('../inventories/resources_inventory_2024-08-19_153716.csv')
+    ds = datasets.loc[0]
+
+
+    resources = all_resources[all_resources['dataset_id'] == ds['id']].copy()
+
+    if 'dataset' in list(resources['resource_type']):
+        if resources['title_en'].str.contains(r'(data dictionary|data \w* specification)', case=False).sum():
+            print(True)
+        print(False)
+
+    # no dataset => no need for data dictionary/specification
+    print(True)
 
 
 if __name__ == '__main__':

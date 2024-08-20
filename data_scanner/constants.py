@@ -35,7 +35,7 @@ DATASETS_COLS = ['id', 'title_en', 'title_fr', 'published', 'modified',
                  'metadata_created', 'metadata_modified', 'num_resources', 
                  'maintainer_email', 'maintainer_name', 'collection', 
                  'frequency', 'currency', 'official_langs', 'open_formats',
-                 'registry_link', 'catalogue_link']
+                 'spec_compliance', 'registry_link', 'catalogue_link']
 RESOURCES_COLS = ['id', 'title_en', 'title_fr', 'created', 
                   'metadata_modified', 'format', 'langs', 
                   'dataset_id', 'resource_type', 'url', 'url_status',

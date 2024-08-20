@@ -240,5 +240,20 @@ class TestMain(unittest.TestCase):
                 print(f'Expected: {expected}\n')
             self.assertEqual(result, expected)
 
+    def test_get_spec_compliance(self):
+
+        datasets = pd.read_json('.\\test_files\\datasets_spec.json')
+        resources = pd.read_json('.\\test_files\\resources_spec.json')
+        
+        for _, dataset in datasets.iterrows():
+            ds = dataset[DATASETS_COLS]
+            expected = dataset['expected_spec_compliance']
+            result = get_spec_compliance(ds, resources)
+            if result != expected:
+                print(f'\n\nDifference for id #{ds['id']}:')
+                print(f'Result: {result}')
+                print(f'Expected: {expected}\n')
+            self.assertEqual(result, expected)
+
 if __name__ == '__main__':
     unittest.main()

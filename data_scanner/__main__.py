@@ -16,6 +16,7 @@ import requests
 import threading
 import time
 import urllib3
+import warnings
 
 from dataclasses import dataclass
 from requests.adapters import HTTPAdapter, Retry
@@ -147,7 +148,7 @@ def add_dataset(dataset: dict, datasets: pd.DataFrame,
     record['frequency'] = dataset['frequency']
     record['registry_link'] = REGISTRY_DATASETS_BASE_URL.format(record['id'])
     record['catalogue_link'] = CATALOGUE_DATASETS_BASE_URL.format(record['id'])
-    # 'modified', 'currency' and 'official_langs' 
+    # 'modified', 'currency', 'official_langs' and 'spec_compliance' 
     # will be added to the record later on
 
     lock.acquire()
@@ -340,6 +341,23 @@ def get_open_formats(ds: pd.Series, all_resources: pd.DataFrame) -> bool:
 
     return True
 
+def get_spec_compliance(ds: pd.Series, all_resources: pd.DataFrame) -> bool:
+    """Returns True if dataset ds is compliant with specification / data 
+    dictionary requirements; false otherwise (i.e. if the dataset has 1+ 
+    resource classed as 'dataset', checks if it also has resources whose title 
+    include "data dictionary" or "specification"; if not, is non-compliant).
+    """
+    warnings.filterwarnings('ignore', category=UserWarning)
+    resources = all_resources[all_resources['dataset_id'] == ds['id']].copy()
+    if 'dataset' in list(resources['resource_type']):
+        if resources['title_en'].str.contains(
+                r'(data dictionary|specification)', case=False).sum():
+            return True
+        return False
+    # no dataset => no need for data dictionary/specification
+    return True
+
+
 
 # MAIN CODE ******************************************************************
 
@@ -427,11 +445,15 @@ def main() -> None:
     print('Veritying datasets\' currency.')
     datasets['currency'] = datasets.apply(get_currency, axis=1)
     # Check official_langs
-    print('Verifying official languages compliancy.')
+    print('Verifying official languages compliance.')
     datasets['official_langs'] = datasets.apply(lambda ds: get_official_langs(ds, resources), axis=1)
     # Check open_formats
-    print('Verifying open formats compliancy.')
+    print('Verifying open formats compliance.')
     datasets['open_formats'] = datasets.apply(lambda ds: get_open_formats(ds, resources), axis=1)
+    # Check spec_compliance
+    print('Verifying specification / data dictionary compliance.')
+    datasets['spec_compliance'] = datasets.apply(lambda ds: get_spec_compliance(ds, resources), axis=1)
+
     print("Inventories are ready.")
 
     # Exporting inventories
