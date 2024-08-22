@@ -21,6 +21,32 @@ class TestDataCatalogue(unittest.TestCase):
         dc2 = DataCatalogue(base_url2)
         self.assertEqual(dc2.base_url, base_url2)
 
+    def test_request_ckan(self):
+
+        registry = DataCatalogue(REGISTRY_BASE_URL)
+
+        url1 = REGISTRY_BASE_URL + 'package_list'
+        result1 = registry.request_ckan(url1)
+        self.assertIsInstance(result1, list)
+
+        url2 = REGISTRY_BASE_URL + 'package_lists'
+        with self.assertRaises(AssertionError) as ae2:
+            result2 = registry.request_ckan(url2)
+        self.assertEqual(str(ae2.exception), 
+                        'Request Error:\nUnexpected status code: 400')
+
+        url3 = 'https://open.canada.ca/data/thisisatest'
+        with self.assertRaises(AssertionError) as ae3:
+            result3 = registry.request_ckan(url3)
+        self.assertEqual(str(ae3.exception), 
+                        'Request Error:\nUnexpected status code: 404')
+
+        url4 = REGISTRY_BASE_URL + 'dashboard_activity_list'
+        with self.assertRaises(AssertionError) as ae4:
+            result4 = registry.request_ckan(url4)
+        self.assertEqual(str(ae4.exception), 
+                        'Request Error:\nUnexpected status code: 403')
+
     def test_list_datasets(self):
         registry = DataCatalogue(REGISTRY_BASE_URL)
         datasets = registry.list_datasets()

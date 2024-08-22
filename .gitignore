@@ -1,5 +1,11 @@
 # cache
-**/__pycache__
+**/__pycache__/
 
 # mypy
 .mypy_cache/
+
+# environments
+.venv/
+
+# vscode configs
+.vscode/

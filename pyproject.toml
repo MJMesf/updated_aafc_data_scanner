@@ -13,6 +13,7 @@ requests = "^2.32.3"
 urllib3 = "^2.2.2"
 openpyxl = "^3.1.5"
 tqdm = "^4.66.4"
+colorama = "^0.4.6"
 
 
 [tool.poetry.group.test.dependencies]
@@ -20,6 +21,9 @@ mypy = "^1.11.0"
 pandas-stubs = "^2.2.2.240603"
 types-requests = "^2.32.0.20240712"
 types-tqdm = "^4.66.0.20240417"
+
+[tool.poetry.scripts]
+aafc-data-scanner = "aafc-data-scanner.data_scanner:run"
 
 [build-system]
 requires = ["poetry-core"]

@@ -5,6 +5,7 @@ import numpy as np
 import re
 import json
 import warnings
+from colorama import Fore, Style, init, deinit
 
 
     # tests for the AAFC Open Data Catalogue authentication:
@@ -12,39 +13,15 @@ import warnings
     # url = 'https://data-catalogue-donnees.agr.gc.ca/api/action/organization_list'
     # test = requests.get('https://data-catalogue-donnees.agr.gc.ca/api/action/organization_list')
 
-formats = pd.read_csv('./helper_tables/formats.csv')
+
 
 def main():
-
-    # ds = {}
-    # ds['id'] = '036e5978-c82c-46f5-ac6b-158a876dc65a'
-    all_resources = pd.read_csv('../inventories/resources_inventory_2024-08-09_142800.csv')
-
-    # resources = all_resources[all_resources['dataset_id'] == ds['id']].copy()
-    # resources.drop(index=[1,2,3], inplace=True)
-    # global formats
-
-    # resources = resources.merge(formats, how='left', on='format')
-    # format_types_openness = resources.groupby('format_type')['open'].unique()
-    # for elem in resources.groupby('format_type')['open'].unique():
-    #     if True not in elem:
-    #         print('Fail')
-    # print('Good')
-
-    datasets = pd.read_csv('../inventories/datasets_inventory_2024-08-19_153716.csv')
-    all_resources = pd.read_csv('../inventories/resources_inventory_2024-08-19_153716.csv')
-    ds = datasets.loc[0]
-
-
-    resources = all_resources[all_resources['dataset_id'] == ds['id']].copy()
-
-    if 'dataset' in list(resources['resource_type']):
-        if resources['title_en'].str.contains(r'(data dictionary|data \w* specification)', case=False).sum():
-            print(True)
-        print(False)
-
-    # no dataset => no need for data dictionary/specification
-    print(True)
+    
+    msg = '351 datasets and 2560 resources were found.'
+    init()
+    print('This is a totally pointless message that does not say anything.')
+    print(Fore.YELLOW + '351' + Fore.RESET + ' datasets and ' + Fore.YELLOW + '2560' + Fore.RESET + ' resources were found.')
+    print('You shall not pass. Fly you fools.')
 
 
 if __name__ == '__main__':
