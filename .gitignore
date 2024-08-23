@@ -9,3 +9,6 @@
 
 # vscode configs
 .vscode/
+
+# manual testing
+./tests/manual_tests.py

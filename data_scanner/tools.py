@@ -17,6 +17,8 @@ from typing import Any, Dict, List, Optional
 
 from .constants import *
 
+iso639 = pd.read_csv('./helper_tables/iso639_1to3.csv', encoding='utf-8-sig')
+ISO639_MAP = {row['iso639-1']:row['iso639-3'] for _, row in iso639.iterrows()}
 
 @dataclass
 class TenaciousSession:
@@ -24,13 +26,21 @@ class TenaciousSession:
     due to Connection errors (Url statuses 500, 502, 503, 504).
     """
 
-    session: requests.Session
+    session: requests.Session = field(default_factory=requests.Session)
 
-    def __init__(self):
-        self.session = requests.Session()
-        retries = Retry(backoff_factor=1, status_forcelist=[500, 502, 503, 504])
+    global _get_iso639_map
+
+    def __post_init__(self) -> None:
+        retries = Retry(backoff_factor=1, 
+                        status_forcelist=[500, 502, 503, 504])
         self.session.mount('http://', HTTPAdapter(max_retries=retries))
         self.session.mount('https://', HTTPAdapter(max_retries=retries))
+
+    # def __init__(self):
+    #     self.session = requests.Session()
+    #     retries = Retry(backoff_factor=1, status_forcelist=[500, 502, 503, 504])
+    #     self.session.mount('http://', HTTPAdapter(max_retries=retries))
+    #     self.session.mount('https://', HTTPAdapter(max_retries=retries))
     
     def get_and_retry(self, url):
         """Sends http request and retries in case of connection issues."""
@@ -161,7 +171,7 @@ class Inventory:
         record['frequency'] = dataset['frequency']
         record['registry_link'] = REGISTRY_DATASETS_BASE_URL.format(record['id'])
         record['catalogue_link'] = CATALOGUE_DATASETS_BASE_URL.format(record['id'])
-        # 'modified', 'currency', 'official_langs' and 'spec_compliance' 
+        # 'modified', 'up_to_date', 'official_lang', 'open_formats' and 'spec' 
         # will be added to the record later on
 
         lock.acquire()
@@ -180,7 +190,6 @@ class Inventory:
             record['title_en'] = resource['name']
             record['created'] = resource['created']
             record['format'] = resource['format']
-            record['langs'] = '/'.join(resource['language'])
             record['dataset_id'] = resource['package_id']
             record['resource_type'] = resource['resource_type']
             record['url'] = resource['url']
@@ -192,6 +201,12 @@ class Inventory:
             record['catalogue_link'] = CATALOGUE_RESOURCES_BASE_URL.format(
                 record['dataset_id'], record['id']
             )
+
+            # languages mapping to iso639-3 and concatenation
+            lang: List[str] = list(map(lambda x: ISO639_MAP[x],
+                                       resource['language']))
+            record['lang'] = '/'.join(lang)
+            
             # non-mandatory and special fields:
             if 'metadata_modified' in resource.keys():
                 record['metadata_modified'] = resource['metadata_modified']   

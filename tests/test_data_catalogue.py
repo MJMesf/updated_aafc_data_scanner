@@ -1,6 +1,7 @@
 """This code tests the DataCatalogue class implementde in __main__.py and is 
 intended to be run from project's top folder using:
   py -m unittest tests.test_data_catalogue
+Use -v for more verbose.
 """
 
 from data_scanner.constants import *

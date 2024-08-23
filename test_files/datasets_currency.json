@@ -12,14 +12,14 @@
     "maintainer_name":"Open Ouvert",
     "collection":"publication",
     "frequency":"not_planned",
-    "currency":null,
-    "official_langs":null,
+    "up_to_date":null,
+    "official_lang":null,
     "open_formats":null,
-    "spec_compliance":null,
+    "spec":null,
     "registry_link":"https://open.canada.ca/data/en/dataset/b8cfc949-501a-4c04-a265-bfe844f41972",
     "catalogue_link":"https://data-catalogue-donnees.agr.gc.ca/aafc-open-data/b8cfc949-501a-4c04-a265-bfe844f41972",
     "now":"2024-08-01 00:00:00",
-    "expected_currency":"Up to date"
+    "expected_up_to_date":true
   },
   {
     "id":"de1f8f2a-2899-4469-8545-f247c717d112",
@@ -34,14 +34,14 @@
     "maintainer_name":"Christian MacQuarrie",
     "collection":"primary",
     "frequency":"not_planned",
-    "currency":null,
-    "official_langs":null,
+    "up_to_date":null,
+    "official_lang":null,
     "open_formats":null,
-    "spec_compliance":null,
+    "spec":null,
     "registry_link":"https://open.canada.ca/data/en/dataset/de1f8f2a-2899-4469-8545-f247c717d112",
     "catalogue_link":"https://data-catalogue-donnees.agr.gc.ca/aafc-open-data/de1f8f2a-2899-4469-8545-f247c717d112",
     "now":"2024-08-01 00:00:00",
-    "expected_currency":"Up to date"
+    "expected_up_to_date":true
   },
   {
     "id":"de1f8f2a-2899-4469-8545-f247c717d113",
@@ -56,14 +56,14 @@
     "maintainer_name":"Christian MacQuarrie",
     "collection":"primary",
     "frequency":"P1D",
-    "currency":null,
-    "official_langs":null,
+    "up_to_date":null,
+    "official_lang":null,
     "open_formats":null,
-    "spec_compliance":null,
+    "spec":null,
     "registry_link":"https://open.canada.ca/data/en/dataset/de1f8f2a-2899-4469-8545-f247c717d112",
     "catalogue_link":"https://data-catalogue-donnees.agr.gc.ca/aafc-open-data/de1f8f2a-2899-4469-8545-f247c717d112",
     "now":"2024-07-19 00:00:00",
-    "expected_currency":"Needs update"
+    "expected_up_to_date":false
   },
   {
     "id":"de1f8f2a-2899-4469-8545-f247c717d114",
@@ -78,14 +78,14 @@
     "maintainer_name":"Christian MacQuarrie",
     "collection":"primary",
     "frequency":"P1W",
-    "currency":null,
-    "official_langs":null,
+    "up_to_date":null,
+    "official_lang":null,
     "open_formats":null,
-    "spec_compliance":null,
+    "spec":null,
     "registry_link":"https://open.canada.ca/data/en/dataset/de1f8f2a-2899-4469-8545-f247c717d112",
     "catalogue_link":"https://data-catalogue-donnees.agr.gc.ca/aafc-open-data/de1f8f2a-2899-4469-8545-f247c717d112",
     "now":"2023-05-08 00:00:00",
-    "expected_currency":"Up to date"
+    "expected_up_to_date":true
   },
   {
     "id":"b8cfc949-501a-4c04-a265-bfe844f41975",
@@ -100,21 +100,21 @@
     "maintainer_name":"Open Ouvert",
     "collection":"publication",
     "frequency":"P2M",
-    "currency":null,
-    "official_langs":null,
+    "up_to_date":null,
+    "official_lang":null,
     "open_formats":null,
-    "spec_compliance":null,
+    "spec":null,
     "registry_link":"https://open.canada.ca/data/en/dataset/b8cfc949-501a-4c04-a265-bfe844f41972",
     "catalogue_link":"https://data-catalogue-donnees.agr.gc.ca/aafc-open-data/b8cfc949-501a-4c04-a265-bfe844f41972",
     "now":"2015-10-25 00:00:00",
-    "expected_currency":"Needs update"
+    "expected_up_to_date":false
   },
   {
     "id":"b8cfc949-501a-4c04-a265-bfe844f41976",
     "title_en":"2006 Canada-US Softwood Lumber Agreement Softwood Lumber Exports Report - 2012",
     "title_fr":"Accord De 2006 sur le Bois D'\u0153uvre R\u00e9sineux Entre le Canada et les \u00c9tats-Unis Rapport sur les Exportations de Bois D'\u0153uvre R\u00e9sineux - 2012",
     "published":"2015-08-24T00:00:00",
-    "modified":"2019-02-15T09:38:21.182637",
+    "modified":"2018-02-17T09:38:21.182637",
     "metadata_created":"2024-07-22T16:00:19.806466",
     "metadata_modified":"2024-07-22T16:00:19.806470",
     "num_resources":8,
@@ -122,14 +122,14 @@
     "maintainer_name":"Open Ouvert",
     "collection":"publication",
     "frequency":"P6M",
-    "currency":null,
-    "official_langs":null,
+    "up_to_date":null,
+    "official_lang":null,
     "open_formats":null,
-    "spec_compliance":null,
+    "spec":null,
     "registry_link":"https://open.canada.ca/data/en/dataset/b8cfc949-501a-4c04-a265-bfe844f41972",
     "catalogue_link":"https://data-catalogue-donnees.agr.gc.ca/aafc-open-data/b8cfc949-501a-4c04-a265-bfe844f41972",
     "now":"2018-08-16 00:00:00",
-    "expected_currency":"Up to date"
+    "expected_up_to_date":true
   },
   {
     "id":"b8cfc949-501a-4c04-a265-bfe844f41977",
@@ -144,14 +144,14 @@
     "maintainer_name":"Open Ouvert",
     "collection":"publication",
     "frequency":"P1Y",
-    "currency":null,
-    "official_langs":null,
+    "up_to_date":null,
+    "official_lang":null,
     "open_formats":null,
-    "spec_compliance":null,
+    "spec":null,
     "registry_link":"https://open.canada.ca/data/en/dataset/b8cfc949-501a-4c04-a265-bfe844f41972",
     "catalogue_link":"https://data-catalogue-donnees.agr.gc.ca/aafc-open-data/b8cfc949-501a-4c04-a265-bfe844f41972",
     "now":"2024-01-26 00:00:00",
-    "expected_currency":"Needs update"
+    "expected_up_to_date":false
   },
   {
     "id":"b8cfc949-501a-4c04-a265-bfe844f41978",
@@ -166,14 +166,14 @@
     "maintainer_name":"Open Ouvert",
     "collection":"publication",
     "frequency":"P3Y",
-    "currency":null,
-    "official_langs":null,
+    "up_to_date":null,
+    "official_lang":null,
     "open_formats":null,
-    "spec_compliance":null,
+    "spec":null,
     "registry_link":"https://open.canada.ca/data/en/dataset/b8cfc949-501a-4c04-a265-bfe844f41972",
     "catalogue_link":"https://data-catalogue-donnees.agr.gc.ca/aafc-open-data/b8cfc949-501a-4c04-a265-bfe844f41972",
     "now":"2024-04-10 00:00:00",
-    "expected_currency":"Up to date"
+    "expected_up_to_date":true
   },
   {
     "id":"b8cfc949-501a-4c04-a265-bfe844f41979",
@@ -188,13 +188,13 @@
     "maintainer_name":"Open Ouvert",
     "collection":"publication",
     "frequency":"P1A",
-    "currency":null,
-    "official_langs":null,
+    "up_to_date":null,
+    "official_lang":null,
     "open_formats":null,
-    "spec_compliance":null,
+    "spec":null,
     "registry_link":"https://open.canada.ca/data/en/dataset/b8cfc949-501a-4c04-a265-bfe844f41972",
     "catalogue_link":"https://data-catalogue-donnees.agr.gc.ca/aafc-open-data/b8cfc949-501a-4c04-a265-bfe844f41972",
     "now":"2024-04-10 00:00:00",
-    "expected_currency":"Error reading frequency"
+    "expected_up_to_date":false
   }
 ]
