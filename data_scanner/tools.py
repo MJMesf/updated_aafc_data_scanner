@@ -6,6 +6,7 @@ from colorama import Fore, Style, init
 import concurrent.futures
 from dataclasses import dataclass, field
 import datetime as dt
+import os
 import pandas as pd
 import re
 import requests
@@ -292,34 +293,56 @@ class Inventory:
               'resources were found.')
         print()
 
-    def export_datasets(self, path: str = './') -> None:
+    @staticmethod
+    def checks_and_creates_path(path: str) -> None:
+        """Checks if the given path exist. If not, creates required 
+        directories. The last subdirectory must end with a slash.
+        """
+        if not path.startswith('./'):
+            if path.startswith('/'):
+                path = '.' + path
+            else:
+                path = './' + path
+        path_pieces: List[str] = path.split('/')
+        subpath: str
+        for i in range(2, len(path_pieces)):
+            subpath = '/'.join(path_pieces[:i])
+            if not os.path.isdir(subpath):
+                    os.mkdir(subpath)
+
+    def export_datasets(self, path: str = './', filename: str = '') -> None:
         """Exports self datasets dataframe as a csv file at the given path, if
         any; if none given, exports it in the current folder.
         """
-        self._export_to_csv(self.datasets, 'datasets', path)
+        self._export_to_csv(self.datasets, 'datasets', path, filename)
 
-    def export_resources(self, path: str = './') -> None:
+    def export_resources(self, path: str = './', filename: str = '') -> None:
         """Exports self resources dataframe as a csv file at the given path, if
         any; if none given, exports it in the current folder.
         """
-        self._export_to_csv(self.resources, 'resources', path)
+        self._export_to_csv(self.resources, 'resources', path, filename)
 
     def _export_to_csv(self, df: pd.DataFrame, df_name: str, 
-                       path: str) -> None:
+                       path: str, filename: str) -> None:
         """Exports DataFrame df as a csv file to the given path, if any. 
         Needs also the name of df as a string for outputs.
         """
 
+        # makes sure there is no backslash issue in path name
         if path != './':
                 path = re.sub(r'[\\]+', '/', path)
                 if not path.endswith('/'):
                     path = path + '/'
-        timestamp: str = dt.datetime.now().strftime("%Y-%m-%d_%H%M%S")
-        filename: str = path + f'{df_name}_inventory_{timestamp}.csv'
+        # makes sure full_path exists; creates directories if needed
+        Inventory.checks_and_creates_path(path)
+        if filename == '':
+            timestamp: str = dt.datetime.now().strftime("%Y-%m-%d_%H%M%S")
+            filename = f'{df_name}_inventory_{timestamp}.csv'
+        full_path: str = path + filename
         msg: str
         init()
         try:
-            df.to_csv(filename, index=False, encoding='utf_8_sig')
+            df.to_csv(full_path, index=False, encoding='utf_8_sig')
         except Exception as e:
             msg = f'Error exporting {df_name} inventory to {filename}:\n{e}\n'
             print(Fore.RED + msg + Fore.RESET)

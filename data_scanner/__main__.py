@@ -179,7 +179,10 @@ def get_spec(ds: pd.Series, all_resources: pd.DataFrame) -> bool:
 # MAIN CODE ******************************************************************
 
 
-def main() -> None:
+def get_inventory() -> Inventory:
+    """Runs open data collection and returns the Inventory, whose attributes 
+    are the datasets' and the resources' inventory.
+    """
 
     # Disable warnings (as non-verified SSL Certificates for the catalogue)
     urllib3.disable_warnings()
@@ -211,10 +214,20 @@ def main() -> None:
 
     print("Inventories are ready.")
 
+    return inventory
+
+def main() -> None:
+
+    inventory = get_inventory()
+
     # Exporting inventories
     print()
-    inventory.export_datasets(path='./../inventories/')
-    inventory.export_resources(path='./../inventories/')
+    inventory.export_datasets(path='./inventories/')
+    inventory.export_resources(path='./inventories/')
+    inventory.export_datasets(path='./inventories/',
+                              filename='_latest_datasets_inventory.csv')
+    inventory.export_resources(path='./inventories/',
+                               filename='_latest_resources_inventory.csv')
 
 
 if __name__ == '__main__':

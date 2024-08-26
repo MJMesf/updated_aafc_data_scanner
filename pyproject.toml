@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "aafc-data-catalogue-scanner"
+name = "aafc-data-scanner"
 version = "0.1.0"
 description = ""
 authors = ["a-taillardat <alexis.taillardat@outlook.com>"]
@@ -15,7 +15,6 @@ openpyxl = "^3.1.5"
 tqdm = "^4.66.4"
 colorama = "^0.4.6"
 
-
 [tool.poetry.group.test.dependencies]
 mypy = "^1.11.0"
 pandas-stubs = "^2.2.2.240603"
@@ -28,3 +27,6 @@ aafc-data-scanner = "aafc-data-scanner.data_scanner:run"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry-pyinstaller-plugin.scripts]
+aafc-data-scanner = "data_scanner/__main__.py"

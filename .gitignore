@@ -11,4 +11,11 @@
 .vscode/
 
 # manual testing
-./tests/manual_tests.py
+tests/manual_tests.py
+
+# buidling executable file
+build/
+dist/
+
+# output files
+inventories/
