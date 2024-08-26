@@ -28,8 +28,6 @@ class TenaciousSession:
 
     session: requests.Session = field(default_factory=requests.Session)
 
-    global _get_iso639_map
-
     def __post_init__(self) -> None:
         retries = Retry(backoff_factor=1, 
                         status_forcelist=[500, 502, 503, 504])
@@ -42,13 +40,25 @@ class TenaciousSession:
     #     self.session.mount('http://', HTTPAdapter(max_retries=retries))
     #     self.session.mount('https://', HTTPAdapter(max_retries=retries))
     
-    def get_and_retry(self, url):
+    def get_and_retry(self, url: str) -> requests.Response:
         """Sends http request and retries in case of connection issues."""
         return self.session.get(url)
     
-    def get_head_and_retry(self, url):
-        """Sends http request and retries in case of connection issues."""
+    def get_head_and_retry(self, url: str) -> requests.Response:
+        """Gets head of http request (url status code and other info) and 
+        retries in case of connection issues.
+        """
         return self.session.head(url)
+    
+    def get_status_code(self, url: str) -> int:
+        """Gets url status code of url and corrects if needed (some ArcGis 
+        links appear as 400 or 405 while they are accessible).
+        """
+        status_code: int = self.get_head_and_retry(url).status_code
+        if status_code != 404 and \
+                re.search(r'atlas/rest|atlas/services', url):
+            status_code = 300
+        return status_code
     
 
 @dataclass
@@ -193,8 +203,8 @@ class Inventory:
             record['dataset_id'] = resource['package_id']
             record['resource_type'] = resource['resource_type']
             record['url'] = resource['url']
-            record['url_status'] = TenaciousSession().get_head_and_retry(
-                resource['url']).status_code
+            record['url_status'] = TenaciousSession().get_status_code(
+                resource['url'])
             record['registry_link'] = REGISTRY_RESOURCES_BASE_URL.format(
                 record['dataset_id'], record['id']
             )
