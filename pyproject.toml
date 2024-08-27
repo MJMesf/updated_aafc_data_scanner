@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "aafc-data-scanner"
+name = "aafc_data_scanner"
 version = "0.1.0"
 description = ""
 authors = ["a-taillardat <alexis.taillardat@outlook.com>"]
@@ -22,11 +22,11 @@ types-requests = "^2.32.0.20240712"
 types-tqdm = "^4.66.0.20240417"
 
 [tool.poetry.scripts]
-aafc-data-scanner = "aafc-data-scanner.data_scanner:run"
+aafc_data_scanner = "aafc_data_scanner.__main__:main"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry-pyinstaller-plugin.scripts]
-aafc-data-scanner = "data_scanner/__main__.py"
+aafc_data_scanner = "aafc_data_scanner/__main__.py"
