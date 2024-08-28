@@ -2,24 +2,13 @@
 datasets information.
 """
 
-from colorama import Fore, Style, init
-import concurrent.futures
 from dataclasses import dataclass, field
-import datetime as dt
-import os
-import pandas as pd
 import re
 import requests
 from requests.adapters import HTTPAdapter, Retry
-import threading
-import time
-from tqdm import tqdm
-from typing import Any, Dict, List, Optional
+from typing import Any, List
 
 from .constants import *
-
-iso639 = pd.read_csv('./helper_tables/iso639_1to3.csv', encoding='utf-8-sig')
-ISO639_MAP = {row['iso639-1']:row['iso639-3'] for _, row in iso639.iterrows()}
 
 @dataclass
 class TenaciousSession:
@@ -28,18 +17,13 @@ class TenaciousSession:
     """
 
     session: requests.Session = field(default_factory=requests.Session)
+    """A requests Session initialized with specific settings."""
 
     def __post_init__(self) -> None:
         retries = Retry(backoff_factor=1, 
                         status_forcelist=[500, 502, 503, 504])
         self.session.mount('http://', HTTPAdapter(max_retries=retries))
         self.session.mount('https://', HTTPAdapter(max_retries=retries))
-
-    # def __init__(self):
-    #     self.session = requests.Session()
-    #     retries = Retry(backoff_factor=1, status_forcelist=[500, 502, 503, 504])
-    #     self.session.mount('http://', HTTPAdapter(max_retries=retries))
-    #     self.session.mount('https://', HTTPAdapter(max_retries=retries))
     
     def get_and_retry(self, url: str) -> requests.Response:
         """Sends http request and retries in case of connection issues."""
@@ -134,222 +118,3 @@ class DataCatalogue:
         """Returns resource's information, given its ID"""
         url: str = self.base_url + f'resource_show?id={id}'
         return self.request_ckan(url)
-    
-@dataclass
-class Inventory:
-
-    datasets: pd.DataFrame = field(
-        default_factory=lambda: pd.DataFrame(columns=DATASETS_COLS)
-    )
-
-    resources: pd.DataFrame = field(
-        default_factory=lambda: pd.DataFrame(columns=RESOURCES_COLS)
-    )
-
-    @staticmethod
-    def infer_name_from_email(email: str) -> str:
-        """(Utility method) Infer name of the email owner from the given email
-        address (splits and capitalizes words before @).
-        """
-        
-        def upper_after_mac(m: re.Match) -> str:
-            return m.group(1) + m.group(2).upper()
-        
-        name: str = ' '.join(re.split(r'[.\-_]', 
-                                    email.split('@')[0].lower())).title()
-        name = re.sub(r'(Ma?c)([a-z])', upper_after_mac, name)
-        name = re.sub(r'^MacKenzie', 'Mackenzie', name)
-        return name
-
-    def add_dataset(self, dataset: dict, datasets: pd.DataFrame,
-                lock: threading.Lock) -> None:
-        """Adds the given dataset's information to the datasets dataframe.
-        The lock argument is a mutex on the datasets dataframe."""
-
-        record: Dict[str, Any] = {}
-        record['id'] = dataset['id']
-        record['title_en'] = dataset['title_translated']['en']
-        record['title_fr'] = dataset['title_translated']['fr']
-        record['published'] = dt.datetime.strptime(
-            dataset['date_published'],'%Y-%m-%d %H:%M:%S').isoformat()
-        record['metadata_created'] = dataset['metadata_created']
-        record['metadata_modified'] = dataset['metadata_modified']
-        record['num_resources'] = dataset['num_resources']
-        record['maintainer_email'] = dataset['maintainer_email'].lower()
-        record['maintainer_name'] = Inventory.infer_name_from_email(
-            record['maintainer_email'])
-        record['collection'] = dataset['collection']
-        record['frequency'] = dataset['frequency']
-        record['registry_link'] = REGISTRY_DATASETS_BASE_URL.format(record['id'])
-        record['catalogue_link'] = CATALOGUE_DATASETS_BASE_URL.format(record['id'])
-        # 'modified', 'up_to_date', 'official_lang', 'open_formats' and 'spec' 
-        # will be added to the record later on
-
-        lock.acquire()
-        datasets.loc[len(datasets)] = record # type: ignore
-        lock.release()
-
-    def add_resource(self, resource: dict, resources: pd.DataFrame, 
-                    lock: threading.Lock) -> None:
-        """Inserts the given resource's information in the resources dataframe.
-        The lock argument is a mutex on the given resources dataframe."""
-
-        try:
-
-            record: Dict[str, Any] = {}
-            record['id'] = resource['id']
-            record['title_en'] = resource['name']
-            record['created'] = resource['created']
-            record['format'] = resource['format']
-            record['dataset_id'] = resource['package_id']
-            record['resource_type'] = resource['resource_type']
-            record['url'] = resource['url']
-            record['url_status'] = TenaciousSession().get_status_code(
-                resource['url'])
-            record['registry_link'] = REGISTRY_RESOURCES_BASE_URL.format(
-                record['dataset_id'], record['id']
-            )
-            record['catalogue_link'] = CATALOGUE_RESOURCES_BASE_URL.format(
-                record['dataset_id'], record['id']
-            )
-
-            # languages mapping to iso639-3 and concatenation
-            lang: List[str] = list(map(lambda x: ISO639_MAP[x],
-                                       resource['language']))
-            record['lang'] = '/'.join(lang)
-            
-            # non-mandatory and special fields:
-            if 'metadata_modified' in resource.keys():
-                record['metadata_modified'] = resource['metadata_modified']   
-            if 'fr' in resource['name_translated'].keys():
-                record['title_fr'] = resource['name_translated']['fr']   
-            elif 'fr-t-en' in resource['name_translated'].keys():
-                record['title_fr'] = resource['name_translated']['fr-t-en'] 
-
-            lock.acquire()
-            resources.loc[len(resources)] = record # type: ignore
-            lock.release()
-
-        except Exception as e:
-            print(type(e))
-            print(e.args)
-            print(e)
-
-    def _collect_dataset_with_resources(
-            self, dc: DataCatalogue, id: str,
-            datasets_lock: threading.Lock,
-            resources_lock: threading.Lock,
-            pbar: Optional[tqdm] = None) -> None:
-        """Fetches the information of the id'd dataset from the given 
-        DataCatalogue dc, along with its resources information, and stores it 
-        in self datasets and resources dataframes, both of which need a 
-        provided mutex/lock in the arguments.
-        """
-        dataset: dict = dc.get_dataset(id)
-        # adds dataset to the common dataframe
-        self.add_dataset(dataset, self.datasets, datasets_lock)
-        for resource in dataset['resources']:
-            # adds resource to the common dataframe
-            self.add_resource(resource, self.resources, resources_lock)
-        if isinstance(pbar, tqdm): # false if pbar == None
-            pbar.update()
-
-    def inventory(self, dc: DataCatalogue) -> None:
-        """Fetches information of all datasets and resources of the given 
-        DataCatalogue dc and stores it in self datasets and resources 
-        dataframes.
-        """
-
-        print()
-        print('Collecting information of all datasets ...')
-        start = time.time() # times datasets collection
-
-        # listing all the datasets IDs:
-        datasets_IDs = dc.search_datasets(owner_org=AAFC_ORG_ID)
-        # initializing the progress bar
-        pbar = tqdm(desc='Processed Datasets', total=len(datasets_IDs), 
-                    colour='green', ncols=100, ascii=' -=') 
-
-        # in parallel threads, collects relevant information of 
-        # each dataset and associated resources
-        datasets_lock = threading.Lock()
-        resources_IDs_lock = threading.Lock()
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            for id in datasets_IDs:
-                executor.submit(self._collect_dataset_with_resources, dc, id, 
-                                datasets_lock, resources_IDs_lock, pbar)
-        pbar.close()
-        end = time.time() # ends datasets collection timer
-
-        self.datasets.sort_values(by='published', ascending=False, inplace=True)
-        self.datasets.reset_index(drop=True, inplace=True)
-        self.resources.sort_values(by='dataset_id', inplace=True)
-        self.resources.reset_index(drop=True, inplace=True)
-        print(f'All information was collected.  ({end-start:.2f}s)')
-        init()
-        print(Fore.YELLOW + f'{len(self.datasets)}' + Fore.RESET,
-              'datasets and',
-              Fore.YELLOW + f'{len(self.resources)}' + Fore.RESET,
-              'resources were found.')
-        print()
-
-    @staticmethod
-    def checks_and_creates_path(path: str) -> None:
-        """Checks if the given path exist. If not, creates required 
-        directories. The last subdirectory must end with a slash.
-        """
-        if not path.startswith('./'):
-            if path.startswith('/'):
-                path = '.' + path
-            else:
-                path = './' + path
-        path_pieces: List[str] = path.split('/')
-        subpath: str
-        for i in range(2, len(path_pieces)):
-            subpath = '/'.join(path_pieces[:i])
-            if not os.path.isdir(subpath):
-                    os.mkdir(subpath)
-
-    def export_datasets(self, path: str = './', filename: str = '') -> None:
-        """Exports self datasets dataframe as a csv file at the given path, if
-        any; if none given, exports it in the current folder.
-        """
-        self._export_to_csv(self.datasets, 'datasets', path, filename)
-
-    def export_resources(self, path: str = './', filename: str = '') -> None:
-        """Exports self resources dataframe as a csv file at the given path, if
-        any; if none given, exports it in the current folder.
-        """
-        self._export_to_csv(self.resources, 'resources', path, filename)
-
-    def _export_to_csv(self, df: pd.DataFrame, df_name: str, 
-                       path: str, filename: str) -> None:
-        """Exports DataFrame df as a csv file to the given path, if any. 
-        Needs also the name of df as a string for outputs.
-        """
-
-        # makes sure there is no backslash issue in path name
-        if path != './':
-                path = re.sub(r'[\\]+', '/', path)
-                if not path.endswith('/'):
-                    path = path + '/'
-        # makes sure full_path exists; creates directories if needed
-        Inventory.checks_and_creates_path(path)
-        if filename == '':
-            timestamp: str = dt.datetime.now().strftime("%Y-%m-%d_%H%M%S")
-            filename = f'{df_name}_inventory_{timestamp}.csv'
-        full_path: str = path + filename
-        msg: str
-        init()
-        try:
-            df.to_csv(full_path, index=False, encoding='utf_8_sig')
-        except Exception as e:
-            msg = f'Error exporting {df_name} inventory to {filename}:\n{e}\n'
-            print(Fore.RED + msg + Fore.RESET)
-        else:
-            msg = f'{
-                df_name.capitalize()
-            } inventory was successfully exported to {filename}.'
-            print(Fore.GREEN + msg + Fore.RESET)
-
-            
