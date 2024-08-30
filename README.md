@@ -1,6 +1,8 @@
 
 # AAFC Data Scanner
 
+<img src="icons/aafc_data_scanner_icon.ico" alt="AAFC Data Scanner Icon" width="100"/>
+
 ## Description
 
 This code is made to parse [AAFC](https://agriculture.canada.ca/en)'s open data on Canada's [Open Government Portal](https://search.open.canada.ca/opendata/) (as well as the departmental [AAFC Open Data Catalogue](https://data-catalogue-donnees.agr.gc.ca/dataset/) in a further version), to provide the user with a complete inventory of datasets and resources. The repository also includes a Power BI report that fetches the generated data to provide visualizations and statistics about all the published data.
@@ -27,8 +29,12 @@ contains `Inventory` class (main class to collect, store and export data from a 
     - **tools.py** \
 contains classes `TenaciousSession` and `DataCatalogue`, used by the main program to handle web requests
 
-- **helper_files/** ... \
-contains data originally used by the program to run properly. This data was later moved to **./aafc_data_scanner/data.py** to allow export as a single executable file, but these were left these here for documentation and understanding purpose.
+- **documentation/** ... \
+contains data originally used by the program to run properly. This data was later moved to **./aafc_data_scanner/data.py** to allow export as a single executable file, but these were left these here for documentation and understanding purpose, along with data schemas of the output inventory tables.
+
+- **icons** \
+    - **aafc_data_scanner_icon.ico**  
+application's icon
 
 - **test_files/** ... \
 sample I/O files for testing
@@ -138,12 +144,5 @@ Open a terminal in the project's main folder. First, make sure poetry is install
 You can then enter:
 
 ```powershell
-pyinstaller --onefile -n "aafc_data_scanner" .\cli.py
+pyinstaller --onefile -n "aafc_data_scanner" -i .\icons\aafc_data_scanner_icon.ico .\cli.py
 ```
-
-(To include an icon, for later:  
-```powershell
-pyinstaller --onefile -n "aafc_data_scanner_test2" -i my_icon.ico .\cli.py
-```
-)
-
