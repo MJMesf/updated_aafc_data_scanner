@@ -1,26 +1,43 @@
 
 # AAFC Data Scanner
 
-[Description](#description) \
-[Content](#content) \
-[Installation & Setup](#installation--setup) \
-[How to use the code](#how-to-use-the-code)
-
 ## Description
 
-This code is made to parse [AAFC](https://agriculture.canada.ca/en)'s open data, both on the departmental [AAFC Open Data Catalogue](https://data-catalogue-donnees.agr.gc.ca/dataset/) and on Canada's [Open Government Portal](https://search.open.canada.ca/opendata/), to provide the user with a complete inventory of datasets and resources, along with visualizations and statistics about all the published data.
+This code is made to parse [AAFC](https://agriculture.canada.ca/en)'s open data on Canada's [Open Government Portal](https://search.open.canada.ca/opendata/) (as well as the departmental [AAFC Open Data Catalogue](https://data-catalogue-donnees.agr.gc.ca/dataset/) in a further version), to provide the user with a complete inventory of datasets and resources. The repository also includes a Power BI report that fetches the generated data to provide visualizations and statistics about all the published data.
 
 
 ## Content
 
-- **data_scanner/** \
-module containting the main program
+- **aafc_data_scanner/** \
+module containting the main code
+    - **\_\_init\_\_.py** \
+makes the folder a package
+    - **\_\_main\_\_.py** \
+main code to run for the app to start
+    - **constants.py** \
+contains project-wide constant variables
+    - **data.py** \
+module to retrieve useful data as dictionaries or data frames (Note: originally 
+stored in helper files, but exporting the project as a single executable 
+file requires no attached data, only code)
+    - **helper_functions.py** \
+helper functions for other modules to use
+    - **inventories.py** \
+contains `Inventory` class (main class to collect, store and export data from a given `DataCatalogue`)
+    - **tools.py** \
+contains classes `TenaciousSession` and `DataCatalogue`, used by the main program to handle web requests
+
+- **helper_files/** ... \
+contains data originally used by the program to run properly. This data was later moved to **./aafc_data_scanner/data.py** to allow export as a single executable file, but these were left these here for documentation and understanding purpose.
 
 - **test_files/** ... \
 sample I/O files for testing
 
 - **tests/** ... \
-code files for testing (unittests)
+code files for testing (unit tests); to be run from project's main folder using `py -m unittest` (add `-v` for more verbose)
+
+- **cli.py** \
+entry point to produce executable file
 
 - **poetry.lock** \
 lock file for automatic downloading of pinned dependencies with Poetry (see [Installation & Setup > Using Poetry](#using-poetry))
@@ -57,7 +74,7 @@ poetry install
 poetry run py #<your python module>
 ```
 
-Replace `py` by `python` or `python3`, depending on how Python is installed on your computer and in your PATH.
+(Replace `py` by `python` or `python3`, depending on your OS and how Python is installed on your computer and in your PATH).
 
 * Alternatively, you can open a new shell set in that virtualenvironment, using:
 
@@ -65,7 +82,7 @@ Replace `py` by `python` or `python3`, depending on how Python is installed on y
 poetry shell
 ```
 
-From there, you can run your code directly with `py` (or `python` or `python3`...). You can exit that virtualenvironment-contained shell with the command `exit`.
+From there, you can run your code directly with `py`/`python`/`python3`. You can exit that virtualenvironment-contained shell with the command `exit`.
 
 
 ### Using a manual virtual environment venv
@@ -76,17 +93,17 @@ From there, you can run your code directly with `py` (or `python` or `python3`..
 
 #### **venv** setup on Windows
 
-Open a Bash or command line prompt in your local repo of this project and run:
+Open a command line prompt in your local repo of this project and run:
 
 ```powershell
 py -m venv venv
 venv\Scripts\activate
 py -m pip install -r requirements.txt
 
-# to exit from the environment at any moment, use:
-deactivate
-# to reactivate it, use:
+# to activate the environement, use:
 venv\Scripts\activate
+# to deactivate it / exit from the environment, use:
+deactivate
 ```
 
 Now that the venv is set up locally on your repo, make sure **venv/** is in your **.gitignore** file.
@@ -94,17 +111,17 @@ Now that the venv is set up locally on your repo, make sure **venv/** is in your
 
 #### **venv** setup on Mac
 
-Open a Bash or command line prompt in your local repo of this project and run:
+Open a command line prompt in your local repo of this project and run:
 
 ```bash
 python -m venv venv
 source venv/bin/activate
 python -m pip install -r requirements.txt
 
-# to exit from the environment at any moment, use:
-deactivate
-# to reactivate it, use:
+# to activate the environement, use:
 source venv/bin/activate
+# to deactivate it / exit from the environment, use:
+deactivate
 ```
 
 Now that the venv is set up locally on your repo, make sure **venv/** is in your **.gitignore** file.
@@ -113,3 +130,20 @@ Now that the venv is set up locally on your repo, make sure **venv/** is in your
 ## How to use the code
 
 > **TO BE COMPLETED**
+
+
+## How to export as a single executable file
+
+Open a terminal in the project's main folder. First, make sure poetry is installed (`poetry install`) and the environment is activated (`poetry shell`).
+You can then enter:
+
+```powershell
+pyinstaller --onefile -n "aafc_data_scanner" .\cli.py
+```
+
+(To include an icon, for later:  
+```powershell
+pyinstaller --onefile -n "aafc_data_scanner_test2" -i my_icon.ico .\cli.py
+```
+)
+
