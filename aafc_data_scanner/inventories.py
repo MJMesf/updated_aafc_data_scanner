@@ -203,7 +203,7 @@ class Inventory:
         if 'dataset' in list(resources['resource_type']):
             if resources['title_en'].str.contains(
                     r'(data dictionary|specification|^dd[_\-]|[_\-]dd.)', 
-                    case=False).sum():
+                    case=False).sum():      
                 return True
             return False
         # no dataset => no need for data dictionary/specification
@@ -216,10 +216,11 @@ class Inventory:
             lambda ds: Inventory.get_modified(ds, self.resources), axis=1
         )
 
-    def complete_up_to_date(self) -> None:
+    def complete_up_to_date(self, 
+                            now: dt.datetime = dt.datetime.now()) -> None:
         """Completes 'up_to_date' column of the datasets table."""
         self.datasets['up_to_date'] = self.datasets.apply(
-            lambda ds: Inventory.get_up_to_date(ds), axis=1
+            lambda ds: Inventory.get_up_to_date(ds, now), axis=1
         )
     
     def complete_official_lang(self) -> None:
@@ -341,7 +342,7 @@ class Inventory:
             if not path.endswith('/'):
                 path = path + '/'
         # makes sure full_path exists; creates directories if needed
-        checks_and_creates_path(path)
+        check_and_create_path(path)
         if filename == '':
             timestamp: str = dt.datetime.now().strftime("%Y-%m-%d_%H%M%S")
             filename = f'{df_name}_inventory_{timestamp}.csv'

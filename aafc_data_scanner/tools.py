@@ -53,13 +53,9 @@ class DataCatalogue:
     base_url: str
     """Base url of catalogue, to which API commands are appended"""
 
-    session: TenaciousSession
+    session: TenaciousSession = field(default_factory=TenaciousSession)
     """TenaciousSession session used to make API requests and others"""
-
-    def __init__(self, base_url: str, 
-                 session: TenaciousSession = TenaciousSession()) -> None:
-        self.base_url = base_url
-        self.session = session
+    
 
     def request_ckan(self, url: str) -> Any:
         """Sends a CKAN API web request with a given URL and return the content 

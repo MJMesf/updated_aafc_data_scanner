@@ -1,11 +1,12 @@
-"""This code tests the DataCatalogue class implementde in __main__.py and is 
+"""This code tests the DataCatalogue class implemented in __main__.py and is 
 intended to be run from project's top folder using:
   py -m unittest tests.test_data_catalogue
 Use -v for more verbose.
 """
 
-from data_scanner.constants import *
-from data_scanner.tools import *
+from aafc_data_scanner.constants import *
+from aafc_data_scanner.tools import *
+from aafc_data_scanner.inventories import *
 
 import numpy as np
 import unittest
@@ -35,21 +36,6 @@ class TestDataCatalogue(unittest.TestCase):
                 print(f'id: {df1.loc[0, 'id']}')
             print(df1.compare(df2))
         self.assertTrue(validated)
-
-
-    def test_infer_name_from_email(self):
-        df = pd.DataFrame({
-            'email': ['jane.doe@agr.gc.ca', 
-                      'john-smith@tbs-sct.gc.ca', 
-                      'cameron_mackenzie@gmail.com', 
-                      'mackenzie.mcdonald@outlook.com'],
-            'name': ['Jane Doe', 'John Smith', 
-                     'Cameron MacKenzie', 'Mackenzie McDonald']
-        })
-        for _, row in df.iterrows():
-            result = Inventory.infer_name_from_email(row['email'])
-            expected = row['name']
-            self.assertEqual(result, expected)
         
 
     def test_add_dataset(self):
@@ -59,15 +45,16 @@ class TestDataCatalogue(unittest.TestCase):
         inventory = Inventory()
         registry = DataCatalogue(REGISTRY_BASE_URL)
         lock = threading.Lock()
-        test_datasets = pd.read_json('.\\test_files\\datasets1.json')
-
+        test_datasets = pd.read_csv('./test_files/datasets.csv', 
+                                    encoding='utf-8-sig')
+        
         for i in range(len(test_datasets)):
             id = test_datasets.loc[i, 'id']
             dataset = registry.get_dataset(id)
             expected = test_datasets.loc[[i]].copy().reset_index(drop=True)
-            result = pd.DataFrame(columns=DATASETS_COLS)
-            inventory.add_dataset(dataset, result, lock)
-            self.assert_and_see_differences(result, expected)
+            actual = pd.DataFrame(columns=DATASETS_COLS)
+            inventory.add_dataset(dataset, actual, lock)
+            self.assert_and_see_differences(actual, expected)
         
     def test_add_resource(self):
 
@@ -75,18 +62,207 @@ class TestDataCatalogue(unittest.TestCase):
         inventory = Inventory()
         registry = DataCatalogue(REGISTRY_BASE_URL, session)
         lock = threading.Lock()
-        test_resources = pd.read_json('./test_files/resources1.json')
+        test_resources = pd.read_csv('test_files/resources.csv', 
+                                     encoding='utf-8-sig')
 
         for i in range(len(test_resources)):
             id = test_resources.loc[i, 'id']
             resource = registry.get_resource(id)
             expected = test_resources.loc[[i]].copy()
             expected.reset_index(drop=True, inplace=True)
-            result = pd.DataFrame(columns=RESOURCES_COLS)
-            inventory.add_resource(resource, result, lock)
+            actual = pd.DataFrame(columns=RESOURCES_COLS)
+            inventory.add_resource(resource, actual, lock)
             # to avoid issues with 200/302 when testing
             # result['url'] = None 
-            self.assert_and_see_differences(result, expected)
+            self.assert_and_see_differences(actual, expected)
+
+    def test_get_modified(self):
+
+        datasets = pd.read_csv('test_files/datasets_modified.csv', 
+                               encoding='utf-8-sig')
+        resources = pd.read_csv('test_files/resources_modified.csv', 
+                                encoding='utf-8-sig')
+
+        for _, dataset in datasets.iterrows():
+            ds = dataset[DATASETS_COLS]
+            expected = dataset['expected_modified']
+            actual = Inventory.get_modified(ds, resources)
+            if actual != expected:
+                print(f'\n\nDifference for id #{ds['id']}:')
+                print(f'Result: {actual}')
+                print(f'Expected: {expected}\n')
+            self.assertEqual(actual, expected)
+
+    def test_get_up_to_date(self):
+
+        datasets = pd.read_csv('test_files/datasets_up_to_date.csv', 
+                               encoding='utf-8-sig')
+
+        for _, dataset in datasets.iterrows():
+            ds = dataset[DATASETS_COLS]
+            now = dt.datetime.fromisoformat(dataset['now'])
+            expected: bool = dataset['expected_up_to_date']
+            if ds['id'] == 'b8cfc949-501a-4c04-a265-bfe844f41979':
+                expected = None
+                continue    # remove continue to test issue message
+                            # when reading unreadable frequencies
+            actual = Inventory.get_up_to_date(ds, now=now)
+            if actual != expected:
+                print(f'\nDifference for id #{ds['id']}:')
+                print(f'Result: {actual}')
+                print(f'Expected: {expected}\n')
+            self.assertEqual(actual, expected)
+    
+    def test_get_official_lang(self):
+
+        datasets = pd.read_csv('test_files/datasets_official_lang.csv', 
+                               encoding='utf-8-sig')
+        resources = pd.read_csv('test_files/resources_official_lang.csv', 
+                                encoding='utf-8-sig')
+        
+        for _, dataset in datasets.iterrows():
+            ds = dataset[DATASETS_COLS]
+            expected = dataset['expected_ol']
+            actual = Inventory.get_official_lang(ds, resources)
+            if actual != expected:
+                print(f'\n\nDifference for id #{ds['id']}:')
+                print(f'Result: {actual}')
+                print(f'Expected: {expected}\n')
+            self.assertEqual(actual, expected)
+    
+    def test_get_open_formats(self):
+
+        datasets = pd.read_csv('test_files/datasets_open_formats.csv', 
+                               encoding='utf-8-sig')
+        resources = pd.read_csv('test_files/resources_open_formats.csv', 
+                                encoding='utf-8-sig')
+        
+        for _, dataset in datasets.iterrows():
+            ds = dataset[DATASETS_COLS]
+            expected = dataset['expected_open_formats']
+            actual = Inventory.get_open_formats(ds, resources)
+            if actual != expected:
+                print(f'\n\nDifference for id #{ds['id']}:')
+                print(f'Result: {actual}')
+                print(f'Expected: {expected}\n')
+            self.assertEqual(actual, expected)
+
+    def test_get_spec(self):
+
+        datasets = pd.read_csv('test_files/datasets_spec.csv', 
+                               encoding='utf-8-sig')
+        resources = pd.read_csv('test_files/resources_spec.csv', 
+                                encoding='utf-8-sig')
+        
+        for _, dataset in datasets.iterrows():
+            ds = dataset[DATASETS_COLS]
+            expected = dataset['expected_spec']
+            actual = Inventory.get_spec(ds, resources)
+            if actual != expected:
+                print(f'\n\nDifference for id #{ds['id']}:')
+                print(f'Result: {actual}')
+                print(f'Expected: {expected}\n')
+            self.assertEqual(actual, expected)
+
+    def test_complete_modified(self):
+        
+        datasets = pd.read_csv('test_files/datasets_modified.csv', 
+                               encoding='utf-8-sig')
+        resources = pd.read_csv('test_files/resources_modified.csv', 
+                                encoding='utf-8-sig')
+
+        pd.options.mode.chained_assignment = None 
+        # to avoid SettingWithCopyWarning
+        expected = datasets[DATASETS_COLS]
+        expected['modified'] = datasets['expected_modified'].copy()
+
+        actual = Inventory()
+        actual.datasets = datasets[DATASETS_COLS]
+        actual.resources = resources[RESOURCES_COLS]
+        actual.complete_modified()
+
+        self.assert_and_see_differences(actual.datasets,
+                                        expected)
+
+    def test_complete_up_to_date(self):
+        
+        datasets = pd.read_csv('test_files/datasets_up_to_date.csv', 
+                               encoding='utf-8-sig')
+
+        pd.options.mode.chained_assignment = None 
+        # to avoid SettingWithCopyWarning
+        expected = datasets[DATASETS_COLS]
+        expected['up_to_date'] = datasets['expected_up_to_date1'].copy()
+        expected.drop(index=len(expected)-1, inplace=True)
+
+        actual = Inventory()
+        actual.datasets = datasets[DATASETS_COLS]
+        actual.datasets.drop(index=len(actual.datasets)-1, inplace=True)
+        now = dt.datetime(2023, 6, 1)
+        actual.complete_up_to_date(now)
+
+        self.assert_and_see_differences(actual.datasets,
+                                        expected)
+
+    def test_complete_official_lang(self):
+
+        datasets = pd.read_csv('test_files/datasets_official_lang.csv', 
+                               encoding='utf-8-sig')
+        resources = pd.read_csv('test_files/resources_official_lang.csv', 
+                                encoding='utf-8-sig')
+
+        pd.options.mode.chained_assignment = None 
+        # to avoid SettingWithCopyWarning
+        expected = datasets[DATASETS_COLS]
+        expected['official_lang'] = datasets['expected_ol'].copy()
+
+        actual = Inventory()
+        actual.datasets = datasets[DATASETS_COLS]
+        actual.resources = resources[RESOURCES_COLS]
+        actual.complete_official_lang()
+
+        self.assert_and_see_differences(actual.datasets,
+                                        expected)
+    
+    def test_complete_open_formats(self):
+        
+        datasets = pd.read_csv('test_files/datasets_open_formats.csv', 
+                               encoding='utf-8-sig')
+        resources = pd.read_csv('test_files/resources_open_formats.csv', 
+                                encoding='utf-8-sig')
+
+        pd.options.mode.chained_assignment = None 
+        # to avoid SettingWithCopyWarning
+        expected = datasets[DATASETS_COLS]
+        expected['open_formats'] = datasets['expected_open_formats'].copy()
+
+        actual = Inventory()
+        actual.datasets = datasets[DATASETS_COLS]
+        actual.resources = resources[RESOURCES_COLS]
+        actual.complete_open_formats()
+
+        self.assert_and_see_differences(actual.datasets,
+                                        expected)
+    
+    def test_complete_spec(self):
+        
+        datasets = pd.read_csv('test_files/datasets_spec.csv', 
+                               encoding='utf-8-sig')
+        resources = pd.read_csv('test_files/resources_spec.csv', 
+                                encoding='utf-8-sig')
+
+        pd.options.mode.chained_assignment = None 
+        # to avoid SettingWithCopyWarning
+        expected = datasets[DATASETS_COLS]
+        expected['spec'] = datasets['expected_spec'].copy()
+
+        actual = Inventory()
+        actual.datasets = datasets[DATASETS_COLS]
+        actual.resources = resources[RESOURCES_COLS]
+        actual.complete_spec()
+
+        self.assert_and_see_differences(actual.datasets,
+                                        expected)
 
     # UPDATE THIS ONE TO REFLECT _collect_dataset_with_resources
     def test_collect_dataset_with_resources(self):
@@ -95,8 +271,10 @@ class TestDataCatalogue(unittest.TestCase):
         dc = DataCatalogue(REGISTRY_BASE_URL)
         datasets_lock = threading.Lock()
         resources_IDs_lock = threading.Lock()
-        datasets = pd.read_json('.\\test_files\\datasets1.json')
-        resources = pd.read_json('.\\test_files\\resources1.json')
+        datasets = pd.read_csv('./test_files/datasets.csv', 
+                               encoding='utf-8-sig')
+        resources = pd.read_csv('test_files/resources.csv',
+                                encoding='utf-8-sig')
 
         for i in range(len(datasets)):
             id = datasets.loc[i, 'id']

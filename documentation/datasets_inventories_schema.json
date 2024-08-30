@@ -1,0 +1,198 @@
+{
+    "$schema": "https://specs.frictionlessdata.io/schemas/table-schema.json",
+	"fields": [
+		{
+			"name": "id",
+			"title": "Dataset ID",
+            "description": "Dataset's unique identifier on the open government platform (CKAN). Field directly retrieved from the open government platform.",
+            "example": "5d3ab93e-324a-41db-8d29-0f0813d0e9cd",
+            "type": "string",
+			"constraints": {
+				"required": true
+			}
+		},
+		{
+			"name": "title_en",
+			"title": "Dataset Title (English)",
+            "description": "Dataset's title in English. Field directly retrieved from the open government platform.",
+            "example": "Annual Crop Inventory 2023",
+            "type": "string",
+			"constraints": {
+				"required": true
+			}
+		},
+		{
+			"name": "title_fr",
+			"title": "Dataset Title (French)",
+            "description": "Dataset's title in French. Field directly retrieved from the open government platform.",
+            "example": "Inventaire annuel des cultures, 2023",
+            "type": "string",
+			"constraints": {
+				"required": true
+			}
+		},
+		{
+			"name": "published",
+			"title": "Published",
+            "description": "Date the dataset was published (note: time part set to 0 for all records, as only day is known). Field retrieved from the open government platform and converted to a ISO8601 format with separator T.",
+            "example": "2024-02-29T00:00:00",
+            "type": "datetime",
+            "rdfType": "https://schema.org/DateTime",
+			"constraints": {
+				"required": true
+			}
+		},
+		{
+			"name": "modified",
+			"title": "Modified",
+            "description": "Date the dataset was last modified. Field obtained by taking the latest of its resources's created and modified_metadata.",
+            "example": "2024-06-17T19:40:12.544429",
+            "type": "datetime",
+            "rdfType": "https://schema.org/DateTime",
+			"constraints": {
+				"required": true
+			}
+		},
+		{
+			"name": "metadata_created",
+			"title": "Metadata Created",
+            "description": "Date the dataset's metadata was created. Field directly retrieved from the open government platform.",
+            "example": "2024-06-17T19:40:12.544429",
+            "type": "datetime",
+            "rdfType": "https://schema.org/DateTime",
+			"constraints": {
+				"required": true
+			}
+		},
+		{
+			"name": "metadata_modified",
+			"title": "Metadata Modified",
+            "description": "Date the dataset's metadata was last modified. Field directly retrieved from the open government platform.",
+            "example": "2024-06-17T19:40:12.487790",
+            "type": "datetime",
+            "rdfType": "https://schema.org/DateTime",
+			"constraints": {
+				"required": true
+			}
+		},
+		{
+			"name": "num_resources",
+			"title": "Number of resources",
+            "description": "Number of resources associated. Field directly retrieved from the open government platform.",
+            "example": "10",
+            "type": "integer",
+			"constraints": {
+				"required": true,
+                "minimum": 1
+			}
+		},
+		{
+			"name": "maintainer_email",
+			"title": "Maintainer Email",
+            "description": "Maintainer's email address. Field directly retrieved from the open government platform.",
+            "example": "agri-geomatics-agrog@agr.gc.ca",
+            "type": "string",
+            "format": "email",
+            "rdfType": "https://schema.org/email",
+			"constraints": {
+				"required": true
+			}
+		},
+		{
+			"name": "maintainer_name",
+			"title": "Maintainer Name",
+            "description": "Maintainer's name (may be a team). Field inferred from the maintainer's email. (Power BI report further this name, automatically)",
+            "example": "Agri Geomatics Agrog",
+            "type": "string",
+			"constraints": {
+				"required": true
+			}
+		},
+		{
+			"name": "collection",
+			"title": "Collection",
+            "description": "Dataset's collection type. Field directly retrieved from the open government platform.",
+            "example": "fgp",
+            "type": "string",
+			"constraints": {
+				"required": true
+			}
+		},
+		{
+			"name": "frequency",
+			"title": "Frequency",
+            "description": "Frequency of maintenance/updates given in ISO format (e.g. P2Y = every 2 year), with possible special values: 'continual', 'as_needed', 'irregular', 'not_planned' and 'unknown'. Field directly retrieved from the open government platform.",
+            "example": "not_planned",
+            "type": "duration",
+			"constraints": {
+				"required": true
+			}
+		},
+		{
+			"name": "up_to_date",
+			"title": "Up to date",
+            "description": "Currency status: TRUE means dataset is up to date; FALSE means it needs an update. Field computed, based on 'frequency' and 'modified' columns.",
+            "example": "TRUE",
+            "type": "boolean",
+			"constraints": {
+				"required": true
+			}
+		},
+		{
+			"name": "official_lang",
+			"title": "Official Languages",
+            "description": "Compliance with official languages requirements. Field computed by verifying if dataset has the same number of resources in English and in French.",
+            "example": "TRUE",
+            "type": "boolean",
+			"constraints": {
+				"required": true
+			}
+		},
+		{
+			"name": "open_formats",
+			"title": "Open Format",
+            "description": "Compliance with open formats. Cannot be considered 100% accurate. Field computed by listing the dataset's resources distinct format types (e.g., Text Documents) and verifying if there is at least one resource in an open format for each of those format types.",
+            "example": "TRUE",
+            "type": "boolean",
+			"constraints": {
+				"required": true
+			}
+		},
+		{
+			"name": "spec",
+			"title": "Specification",
+            "description": "Compliance with specification / data dictionary requirements. Cannot be considered 100% accurate. Field computed by checking that, if the dataset has any resource of resource type 'dataset' (e.g., a CSV), it also has a resource whose name contains 'data dictionary', 'specification', or starts/ends with 'dd_'/'_dd'.",
+            "example": "TRUE",
+            "type": "boolean",
+			"constraints": {
+				"required": true,
+				"type": "http://www.w3.org/2001/XMLSchema#boolean"
+			}
+		},
+		{
+			"name": "registry_link",
+			"title": "Registry Link",
+            "description": "URL to the dataset's page on the open registry (open.canada.ca).",
+            "example": "https://open.canada.ca/data/en/dataset/41f33e82-c19c-481e-8873-534b5e6d7ebc",
+            "type": "string",
+            "format": "uri",
+            "rdfType": "https://schema.org/url",
+			"constraints": {
+				"required": true
+			}
+		},
+		{
+			"name": "catalogue_link",
+			"title": "Catalogue Link",
+            "description": "URL to the dataset's page on AAFC Open Data Catalogue (https://data-catalogue-donnees.agr.gc.ca/dataset/). As some datasets are not on that catalogue, may return error 404.",
+            "example": "https://data-catalogue-donnees.agr.gc.ca/aafc-open-data/41f33e82-c19c-481e-8873-534b5e6d7ebc",
+            "type": "string",
+            "format": "uri",
+            "rdfType": "https://schema.org/url",
+			"constraints": {
+				"required": true
+			}
+		}
+	],
+    "primaryKey": "id"
+}

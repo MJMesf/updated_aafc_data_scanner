@@ -1,23 +1,29 @@
-"""Parses AAFC's open data, both on the departmental AAFC Open Data Catalogue 
-and on Canada's Open Government Portal, to provide the user with a complete 
-inventory of datasets and resources, along with visualizations and statistics 
-about all the published data.
-
-NOTE: Problem accessing AAFC Open Data Catalogue, task left for later; 
-current focus is on the Open Government Portal.
+"""Parses AAFC's open data on Canada's Open Government Portal (as well as the 
+departmental AAFC Open Data Catalogue in a further version), to provide the 
+user with a complete inventory of datasets and resources in csv files.
 """
 
-import urllib3
+import atexit
+from colorama import Fore
 
 from .constants import *
 from .tools import TenaciousSession, DataCatalogue
 from .inventories import Inventory
 
 
+@atexit.register
+def display_exit_message() -> None:
+    """Asks user to click enter when program ends, so user has time to read 
+    all logged messages if needed before closing console.
+    """
+    print('\nClick Enter to exit.')
+    input()
+
+
 def main() -> None:
 
-    # Disabling warnings (as non-verified SSL Certificates for the catalogue)
-    urllib3.disable_warnings()
+    print()
+    print(Fore.YELLOW + '\tAAFC Data Scanner' + Fore.RESET)
 
     # Preparing request session with a set Retry to handle Connection errors
     session = TenaciousSession()
@@ -35,10 +41,6 @@ def main() -> None:
                               filename='_latest_datasets_inventory.csv')
     inventory.export_resources(path='./inventories/',
                                filename='_latest_resources_inventory.csv')
-    
-    print()
-    print('Click Enter to exit.')
-    input()
 
 
 if __name__ == '__main__':

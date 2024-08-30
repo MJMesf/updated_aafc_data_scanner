@@ -5,7 +5,7 @@
 .mypy_cache/
 
 # environments
-.venv/
+venv/
 
 # vscode configs
 .vscode/
@@ -16,6 +16,7 @@ tests/manual_tests.py
 # buidling executable file
 build/
 dist/
+**.spec
 
 # output files
 inventories/

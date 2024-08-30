@@ -1,11 +1,11 @@
-"""This code tests the DataCatalogue class implementde in __main__.py and is 
+"""This code tests the DataCatalogue class implemented in __main__.py and is 
 intended to be run from project's top folder using:
   py -m unittest tests.test_data_catalogue
 Use -v for more verbose.
 """
 
-from data_scanner.constants import *
-from data_scanner.__main__ import *
+from aafc_data_scanner.constants import *
+from aafc_data_scanner.tools import *
 
 import unittest
 

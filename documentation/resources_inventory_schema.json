@@ -1,0 +1,155 @@
+{
+	"$schema": "https://specs.frictionlessdata.io/schemas/table-schema.json",
+	"fields": [
+		{
+			"name": "id",
+			"title": "Resource ID",
+            "description": "Dataset's unique identifier on the open government platform (CKAN). Field directly retrieved from the open government platform.",
+            "example": "d310f9f8-4d3c-4834-be89-65544b0f64ff",
+            "type": "string",
+			"constraints": {
+				"required": true
+			}
+		},
+		{
+			"name": "title_en",
+			"title": "Resource Title (English)",
+			"description": "Resource's title in English. Field directly retrieved from the open government platform.",
+            "example": "Pre-packaged GeoJSON files",
+            "type": "string",
+			"constraints": {
+				"required": true
+			}
+		},
+		{
+			"name": "title_fr",
+			"title": "Resource Title (French)",
+            "description": "Resource's title in French. Field directly retrieved from the open government platform.",
+            "example": "Fichiers GML préemballés",
+            "type": "string",
+			"constraints": {
+				"required": true
+			}
+		},
+		{
+			"name": "created",
+			"title": "Created",
+			"description": "Date the resource was created. Field directly retrieved from the open government.",
+            "example": "2023-02-06T17:53:00.916665",
+            "type": "datetime",
+            "rdfType": "https://schema.org/DateTime",
+			"constraints": {
+				"required": true
+			}
+		},
+		{
+			"name": "metadata_modified",
+			"title": "Metadata Modified",
+            "description": "Date the resource's metadata was last modified. Field directly retrieved from the open government platform.",
+            "example": "2024-02-15T19:10:12.036962",
+            "type": "datetime",
+            "rdfType": "https://schema.org/DateTime",
+			"constraints": {
+				"required": false
+			}
+		},
+		{
+			"name": "format",
+			"title": "Format",
+			"description": "Resource's file format. Field directly retrieved from the open government platform.",
+            "example": "GEOJSON",
+            "type": "string",
+			"constraints": {
+				"required": true
+			}
+		},
+		{
+			"name": "lang",
+			"title": "Languages",
+			"description": "Resource's language(s), following standard ISO639-3 (e.g. eng for English, fra for French, zxx for no linguistic content); in case of several languages, they are separated by slashes. Field retrieved from the open government platform and then converted to specified format.",
+            "example": "eng/fra",
+            "type": "string",
+			"constraints": {
+				"required": true,
+				"type": "http://www.w3.org/2001/XMLSchema#string",
+				"pattern": "[[a-z]{3}[/[a-z]{3}]*"
+			}
+		},
+		{
+			"name": "dataset_id",
+			"title": "Dataset ID",
+			"description": "Unique identifier of the dataset the resource belongs to, on the open government platform (CKAN). Field directly retrieved from the open government platform.",
+            "example": "036e5978-c82c-46f5-ac6b-158a876dc65a",
+            "type": "string",
+			"constraints": {
+				"required": true
+			}
+		},
+		{
+			"name": "resource_type",
+			"title": "Resource Type",
+			"description": "Resource type. Field directly retrieved from the open government platform.",
+            "example": "dataset",
+            "type": "string",
+			"constraints": {
+				"required": true
+			}
+		},
+		{
+			"name": "url",
+			"title": "URL",
+			"description": "URL to the actual resource. Field retrieved directly from the open government platform.",
+            "example": "https://agriculture.canada.ca/atlas/rest/services/mapservices/aafc_annual_unit_runoff_2013/MapServer/0",
+            "type": "string",
+            "format": "uri",
+            "rdfType": "https://schema.org/url",
+			"constraints": {
+				"required": true
+			}
+		},
+		{
+			"name": "url_status",
+			"title": "URL Status Code",
+			"description": "URL Status code of the resource's URL. Field obtained by the program, by making web requests.",
+            "example": "404",
+            "type": "integer",
+			"constraints": {
+				"required": true
+			}
+		},
+		{
+			"name": "registry_link",
+			"title": "Registry Link",
+            "description": "URL to the resource's page on the open registry (open.canada.ca).",
+            "example": "https://open.canada.ca/data/en/dataset/036e5978-c82c-46f5-ac6b-158a876dc65a/resource/d310f9f8-4d3c-4834-be89-65544b0f64ff",
+            "type": "string",
+            "format": "uri",
+            "rdfType": "https://schema.org/url",
+			"constraints": {
+				"required": true
+			}
+		},
+		{
+			"name": "catalogue_link",
+			"title": "Catalogue Link",
+            "description": "URL to the resource's page on AAFC Open Data Catalogue (https://data-catalogue-donnees.agr.gc.ca/dataset/). As some resources are not on that catalogue, may return error 404.",
+            "example": "https://data-catalogue-donnees.agr.gc.ca/aafc-open-data/036e5978-c82c-46f5-ac6b-158a876dc65a/resource/a77eafb0-a8a2-418d-ac57-9f7ed8fa1bdc",
+            "type": "string",
+            "format": "uri",
+            "rdfType": "https://schema.org/url",
+			"constraints": {
+				"required": true
+			}
+		}
+	],
+	"primaryKey": "id",
+	"foreignKeys": [
+		{
+			"fields": "dataset_id",
+			"reference": {
+				"resource": "datasets_inventory_schema.json",
+				"fields": "id"
+			}
+		}
+	]
+}

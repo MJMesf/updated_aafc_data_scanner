@@ -5,7 +5,7 @@ import re
 from typing import List
 
 
-def checks_and_creates_path(path: str) -> None:
+def check_and_create_path(path: str) -> None:
     """Checks if the given path exist. If not, creates required 
     directories. The last subdirectory must end with a slash.
     """

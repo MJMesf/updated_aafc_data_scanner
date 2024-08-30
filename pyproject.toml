@@ -6,7 +6,7 @@ authors = ["a-taillardat <alexis.taillardat@outlook.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = ">=3.12,<3.14"
 pandas = "^2.2.2"
 numpy = "^2.0.0"
 requests = "^2.32.3"
@@ -20,6 +20,13 @@ mypy = "^1.11.0"
 pandas-stubs = "^2.2.2.240603"
 types-requests = "^2.32.0.20240712"
 types-tqdm = "^4.66.0.20240417"
+
+[tool.poetry.group.executable-export.dependencies]
+pyinstaller = "^6.10.0"
+
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.29.5"
 
 [tool.poetry.scripts]
 aafc_data_scanner = "aafc_data_scanner.__main__:main"
