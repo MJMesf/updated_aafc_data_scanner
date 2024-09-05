@@ -5,7 +5,7 @@
 
 ## Description
 
-This code is made to parse [AAFC](https://agriculture.canada.ca/en)'s open data on Canada's [Open Government Portal](https://search.open.canada.ca/opendata/) (as well as the departmental [AAFC Open Data Catalogue](https://data-catalogue-donnees.agr.gc.ca/dataset/) in a further version), to provide the user with a complete inventory of datasets and resources. The repository also includes a Power BI report that fetches the generated data to provide visualizations and statistics about all the published data.
+This code is made to scan [AAFC](https://agriculture.canada.ca/en)'s open data information on Canada's [Open Government Portal](https://search.open.canada.ca/opendata/) (as well as the departmental [AAFC Open Data Catalogue](https://data-catalogue-donnees.agr.gc.ca/dataset/) in a further version), to provide the user with a complete inventory of datasets and resources. The repository also includes a Power BI report that fetches the generated data to provide visualizations and statistics about all the published data.
 
 
 ## Content
@@ -27,12 +27,12 @@ helper functions for other modules to use
     - **inventories.py** \
 contains `Inventory` class (main class to collect, store and export data from a given `DataCatalogue`)
     - **tools.py** \
-contains classes `TenaciousSession` and `DataCatalogue`, used by the main program to handle web requests
+contains `DataCatalogue` and its subclasses, along with `TenaciousSession` class, used by the main program to handle web requests
 
 - **documentation/** ... \
-contains data originally used by the program to run properly. This data was later moved to **./aafc_data_scanner/data.py** to allow export as a single executable file, but these were left these here for documentation and understanding purpose, along with data schemas of the output inventory tables.
+contains data originally used by the program to run properly. This data was later moved to **./aafc_data_scanner/data.py** to allow export as a single executable file, but these were left here for documentation and understanding, along with data schemas of the output inventory tables.
 
-- **icons** \
+- **icons/**  
     - **aafc_data_scanner_icon.ico**  
 application's icon
 
@@ -52,7 +52,7 @@ lock file for automatic downloading of pinned dependencies with Poetry (see [Ins
 configuration file used by packaging tools, with project's metadata and dependencies
 
 - **README.md** \
-this very file, giving general indications about the project and how to use it
+this very file, giving general indications about the project and how to use the code
 
 - **requirements.txt** \
 contains all dependencies required for this project, along with their version, so they can easily be installed within a local virtual environment (see [Installation & Setup > Using a manual virtual environment venv](#using-a-manual-virtual-environment-venv))

@@ -86,7 +86,7 @@ class TestDataCatalogue(unittest.TestCase):
         for _, dataset in datasets.iterrows():
             ds = dataset[DATASETS_COLS]
             expected = dataset['expected_modified']
-            actual = Inventory.get_modified(ds, resources)
+            actual = Inventory.infer_modified(ds, resources)
             if actual != expected:
                 print(f'\n\nDifference for id #{ds['id']}:')
                 print(f'Result: {actual}')

@@ -78,12 +78,15 @@ def infer_name_from_email(email: str) -> str:
     """(Utility method) Infer name of the email owner from the given email
     address (splits and capitalizes words before @).
     """
-    
+
     def upper_after_mac(m: re.Match) -> str:
-        return m.group(1) + m.group(2).upper()
+            return m.group(1) + m.group(2).upper()
     
-    name: str = ' '.join(re.split(r'[.\-_]', 
-                                email.split('@')[0].lower())).title()
-    name = re.sub(r'(Ma?c)([a-z])', upper_after_mac, name)
-    name = re.sub(r'^MacKenzie', 'Mackenzie', name)
-    return name
+    if email != None and email != '':
+        name: str = ' '.join(re.split(r'[.\-_]', 
+                                    email.split('@')[0].lower())).title()
+        name = re.sub(r'(Ma?c)([a-z])', upper_after_mac, name)
+        name = re.sub(r'^MacKenzie', 'Mackenzie', name)
+        return name
+    else:
+        return ''

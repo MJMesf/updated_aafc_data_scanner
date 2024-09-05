@@ -10,11 +10,13 @@ import threading
 import time
 from tqdm import tqdm
 from typing import Any, Dict, List, Optional
+import urllib3
+import validators
 import warnings
 
 from .constants import *
 from .data import *
-from .tools import TenaciousSession, DataCatalogue
+from .tools import *
 from .helper_functions import *
 
 @dataclass
@@ -41,24 +43,44 @@ class Inventory:
         """Adds the given dataset's information to the datasets dataframe.
         The lock argument is a mutex on the datasets dataframe."""
 
-        record: Dict[str, Any] = {}
-        record['id'] = dataset['id']
-        record['title_en'] = dataset['title_translated']['en']
-        record['title_fr'] = dataset['title_translated']['fr']
-        record['published'] = dt.datetime.strptime(
-            dataset['date_published'],'%Y-%m-%d %H:%M:%S').isoformat()
-        record['metadata_created'] = dataset['metadata_created']
-        record['metadata_modified'] = dataset['metadata_modified']
-        record['num_resources'] = dataset['num_resources']
-        record['maintainer_email'] = dataset['maintainer_email'].lower()
-        record['maintainer_name'] = infer_name_from_email(
-            record['maintainer_email'])
-        record['collection'] = dataset['collection']
-        record['frequency'] = dataset['frequency']
-        record['registry_link'] = REGISTRY_DATASETS_BASE_URL.format(record['id'])
-        record['catalogue_link'] = CATALOGUE_DATASETS_BASE_URL.format(record['id'])
-        # 'modified', 'up_to_date', 'official_lang', 'open_formats' and 'spec' 
-        # will be added to the record later on
+        try:
+
+            record: Dict[str, Any] = {}
+            record['id'] = dataset['id']
+            record['title_en'] = dataset['title_translated']['en']
+            record['title_fr'] = dataset['title_translated']['fr']
+            record['published'] = dt.datetime.strptime(
+                dataset['date_published'],'%Y-%m-%d %H:%M:%S').isoformat()
+            record['metadata_created'] = dataset['metadata_created']
+            record['metadata_modified'] = dataset['metadata_modified']
+            record['num_resources'] = dataset['num_resources']
+            if dataset['maintainer_email'] != None:
+                record['maintainer_email'] = dataset['maintainer_email']
+            elif 'data_steward_email' in dataset.keys() and \
+                    dataset['data_steward_email'] != None:
+                record['maintainer_email'] = dataset['data_steward_email']
+            elif 'author_email' in dataset.keys() and \
+                    dataset['author_email'] != None:
+                record['maintainer_email'] = dataset['author_email']
+            else:
+                record['maintainer_email'] = None
+            record['maintainer_name'] = infer_name_from_email(
+                record['maintainer_email'])
+            try:
+                record['collection'] = dataset['collection']
+            except:
+                record['collection'] = None
+            record['frequency'] = dataset['frequency']
+            if not isinstance(record['frequency'], str):
+                print(f'Error for id {record['id']}:',
+                      f'frequency is {record['frequency']} (not str)')
+            record['registry_link'] = REGISTRY_DATASETS_BASE_URL.format(record['id'])
+            record['catalogue_link'] = CATALOGUE_DATASETS_BASE_URL.format(record['id'])
+            # 'modified', 'up_to_date', 'official_lang', 'open_formats' and 'spec' 
+            # will be added to the record later on
+
+        except Exception as e:
+            print(f'!!! An exception occurred in add_dataset:\n{e}')
 
         lock.acquire()
         datasets.loc[len(datasets)] = record # type: ignore
@@ -80,19 +102,27 @@ class Inventory:
             record['dataset_id'] = resource['package_id']
             record['resource_type'] = resource['resource_type']
             record['url'] = resource['url']
-            record['url_status'] = TenaciousSession().get_status_code(
-                resource['url'])
             record['registry_link'] = REGISTRY_RESOURCES_BASE_URL.format(
                 record['dataset_id'], record['id']
             )
             record['catalogue_link'] = CATALOGUE_RESOURCES_BASE_URL.format(
                 record['dataset_id'], record['id']
             )
-
             # languages mapping to iso639-3 and concatenation
             lang: List[str] = list(map(lambda x: ISO639_MAP[x],
                                        resource['language']))
             record['lang'] = '/'.join(lang)
+            # checking url state
+            if (validators.url(record['url'])):
+                urllib3.disable_warnings(
+                    urllib3.exceptions.InsecureRequestWarning
+                )
+                record['url_status'] = TenaciousSession(
+                    skip_SSL=True
+                ).get_status_code(resource['url'])
+            else:
+                # not a url (most likely an internal file path)
+                record['url_status'] = -1 
             
             # non-mandatory and special fields:
             if 'metadata_modified' in resource.keys():
@@ -101,19 +131,17 @@ class Inventory:
                 record['title_fr'] = resource['name_translated']['fr']   
             elif 'fr-t-en' in resource['name_translated'].keys():
                 record['title_fr'] = resource['name_translated']['fr-t-en'] 
-
-            lock.acquire()
-            resources.loc[len(resources)] = record # type: ignore
-            lock.release()
-
+        
         except Exception as e:
-            print(type(e))
-            print(e.args)
-            print(e)
+            print(f'!!! An exception occurred in add_resource:\n{e}')
+
+        lock.acquire()
+        resources.loc[len(resources)] = record # type: ignore
+        lock.release()
 
     @staticmethod
-    def get_modified(ds: pd.Series, all_resources: pd.DataFrame) -> str:
-        """Returns last date modified of the dataset ds, given the created 
+    def infer_modified(ds: pd.Series, all_resources: pd.DataFrame) -> str:
+        """Infers last date modified of the dataset ds, given the created 
         and modified_metadata dates of its resources.
         """
         last_modified: dt.datetime
@@ -141,7 +169,8 @@ class Inventory:
         
         # Computing oldest date considered as valid to be up to date
         frequency: str = ds['frequency']
-        if frequency.startswith('P') and frequency != 'PT1S':
+        if isinstance(frequency, str) and frequency.startswith('P') and \
+                frequency != 'PT1S':
             full_unit: Dict[str, str] = {'D': 'day', 'W': 'week', 
                                         'M': 'month', 'Y': 'year'}
             unit: str = full_unit[frequency[-1]]
@@ -210,10 +239,75 @@ class Inventory:
         return True
 
 
+    def _collect_dataset_with_resources(
+            self, dc: DataCatalogue, id: str,
+            datasets_lock: threading.Lock,
+            resources_lock: threading.Lock,
+            driver_lock: Optional[threading.Lock] = None,
+            pbar: Optional[tqdm] = None) -> None:
+        """Fetches the information of the id'd dataset from the given 
+        DataCatalogue dc, along with its resources information, and stores it 
+        in self datasets and resources dataframes. Both of these need a 
+        provided mutex/lock in the arguments.
+        """
+        if driver_lock != None:
+            driver_lock.acquire()
+        dataset: dict = dc.get_dataset(id)
+        if driver_lock != None:
+            driver_lock.release()
+        # adds dataset to the common dataframe
+        Inventory.add_dataset(dataset, self.datasets, datasets_lock)
+        for resource in dataset['resources']:
+            # adds resource to the common dataframe
+            Inventory.add_resource(resource, self.resources, resources_lock)
+        if isinstance(pbar, tqdm): # false if pbar == None
+            pbar.update()
+
+    def inventory(self, dc: DataCatalogue, 
+                  datasets_IDs: Optional[List[str]] = None) -> None:
+        """Fetches information of all datasets and resources of the given 
+        DataCatalogue dc and stores it in self datasets and resources 
+        dataframes, in parallel.
+        """
+
+        print()
+        print('Collecting information of all datasets ...')
+        start = time.time() # times datasets collection
+
+        if datasets_IDs == None:
+            # listing all the datasets IDs:
+            datasets_IDs = dc.search_datasets(owner_org=AAFC_ORG_ID)
+        # initializing the progress bar
+        pbar = tqdm(desc='Processed Datasets', total=len(datasets_IDs), 
+                    colour='green', ncols=100, ascii=' -=') 
+
+        # in parallel threads, collects relevant information of 
+        # each dataset and associated resources
+        datasets_lock = threading.Lock()
+        resources_IDs_lock = threading.Lock()
+        driver_lock = None
+        if isinstance(dc, DriverDataCatalogue):
+            driver_lock = threading.Lock()
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            for id in datasets_IDs:
+                executor.submit(self._collect_dataset_with_resources, dc, id, 
+                                datasets_lock, resources_IDs_lock, 
+                                driver_lock, pbar)
+            executor.shutdown(wait=True)
+        pbar.close()
+        end = time.time() # ends datasets collection timer
+
+        self.datasets.sort_values(by='published', ascending=False, inplace=True)
+        self.datasets.reset_index(drop=True, inplace=True)
+        self.resources.sort_values(by='dataset_id', inplace=True)
+        self.resources.reset_index(drop=True, inplace=True)
+        print(f'All information was collected.  ({end-start:.2f}s)')
+
+
     def complete_modified(self) -> None:
         """Completes column 'modified' of the datasets table."""
         self.datasets['modified'] = self.datasets.apply(
-            lambda ds: Inventory.get_modified(ds, self.resources), axis=1
+            lambda ds: Inventory.infer_modified(ds, self.resources), axis=1
         )
 
     def complete_up_to_date(self, 
@@ -241,80 +335,26 @@ class Inventory:
             lambda ds: Inventory.get_spec(ds, self.resources), axis=1
         )
 
-    def _collect_dataset_with_resources(
-            self, dc: DataCatalogue, id: str,
-            datasets_lock: threading.Lock,
-            resources_lock: threading.Lock,
-            pbar: Optional[tqdm] = None) -> None:
-        """Fetches the information of the id'd dataset from the given 
-        DataCatalogue dc, along with its resources information, and stores it 
-        in self datasets and resources dataframes. Both of these need a 
-        provided mutex/lock in the arguments.
+    def complete_missing_fields(self) -> None:
+        """Completes columns 'modified', 'up_to_date', 'official_lang', '
+        open_formats' and 'spec' (details given in getters documentation).
         """
-        dataset: dict = dc.get_dataset(id)
-        # adds dataset to the common dataframe
-        Inventory.add_dataset(dataset, self.datasets, datasets_lock)
-        for resource in dataset['resources']:
-            # adds resource to the common dataframe
-            Inventory.add_resource(resource, self.resources, resources_lock)
-        if isinstance(pbar, tqdm): # false if pbar == None
-            pbar.update()
-
-    def inventory(self, dc: DataCatalogue) -> None:
-        """Fetches information of all datasets and resources of the given 
-        DataCatalogue dc and stores it in self datasets and resources 
-        dataframes.
-        """
-
+        # Computing modified for datasets
         print()
-        print('Collecting information of all datasets ...')
-        start = time.time() # times datasets collection
-
-        # listing all the datasets IDs:
-        datasets_IDs = dc.search_datasets(owner_org=AAFC_ORG_ID)
-        # initializing the progress bar
-        pbar = tqdm(desc='Processed Datasets', total=len(datasets_IDs), 
-                    colour='green', ncols=100, ascii=' -=') 
-
-        # in parallel threads, collects relevant information of 
-        # each dataset and associated resources
-        datasets_lock = threading.Lock()
-        resources_IDs_lock = threading.Lock()
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            for id in datasets_IDs:
-                executor.submit(self._collect_dataset_with_resources, dc, id, 
-                                datasets_lock, resources_IDs_lock, pbar)
-        pbar.close()
-        end = time.time() # ends datasets collection timer
-
-        self.datasets.sort_values(by='published', ascending=False, inplace=True)
-        self.datasets.reset_index(drop=True, inplace=True)
-        self.resources.sort_values(by='dataset_id', inplace=True)
-        self.resources.reset_index(drop=True, inplace=True)
-        print(f'All information was collected.  ({end-start:.2f}s)')
-        init()
-        print(Fore.YELLOW + f'{len(self.datasets)}' + Fore.RESET,
-              'datasets and',
-              Fore.YELLOW + f'{len(self.resources)}' + Fore.RESET,
-              'resources were found.')
-        print()
-
-        # Compute modified for datasets
         print('Completing datasets\' modified dates.')
         self.complete_modified()
-        # Check currency for datasets
+        # Checking currency for datasets
         print('Verifying datasets\' currency.')
         self.complete_up_to_date()
-        # Check official languages compliancy
+        # Checking official languages compliancy
         print('Verifying official languages compliance.')
         self.complete_official_lang()
-        # Check open formats compliancy
+        # Checking open formats compliancy
         print('Verifying open formats compliance.')
         self.complete_open_formats()
-        # Check specification
+        # Checking specification
         print('Verifying specification / data dictionary compliance.')
         self.complete_spec()
-        
         print("Inventories are ready.")
 
 
