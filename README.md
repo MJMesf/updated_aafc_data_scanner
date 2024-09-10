@@ -5,7 +5,7 @@
 
 ## Description
 
-This code is made to scan [AAFC](https://agriculture.canada.ca/en)'s open data information on Canada's [Open Government Portal](https://search.open.canada.ca/opendata/) (as well as the departmental [AAFC Open Data Catalogue](https://data-catalogue-donnees.agr.gc.ca/dataset/) in a further version), to provide the user with a complete inventory of datasets and resources. The repository also includes a Power BI report that fetches the generated data to provide visualizations and statistics about all the published data.
+This code is made to scan [AAFC](https://agriculture.canada.ca/en)'s open data information on Canada's [Open Government Portal](https://search.open.canada.ca/opendata/) and the departmental [AAFC Open Data Catalogue](https://data-catalogue-donnees.agr.gc.ca/dataset/), to provide the user with a complete inventory of datasets and resources. The repository also includes a Power BI report that fetches the generated data to provide visualizations and statistics about all the published data.
 
 
 ## Content

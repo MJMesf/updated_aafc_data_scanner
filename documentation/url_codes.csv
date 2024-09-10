@@ -1,501 +1,502 @@
-code,description,validity
-100,Continue,Broken
-101,Switching Protocols,Broken
-102,Processing,Broken
-103,Early Hints,Broken
-104,Unassigned,N/A
-105,Unassigned,N/A
-106,Unassigned,N/A
-107,Unassigned,N/A
-108,Unassigned,N/A
-109,Unassigned,N/A
-110,Unassigned,N/A
-111,Unassigned,N/A
-112,Unassigned,N/A
-113,Unassigned,N/A
-114,Unassigned,N/A
-115,Unassigned,N/A
-116,Unassigned,N/A
-117,Unassigned,N/A
-118,Unassigned,N/A
-119,Unassigned,N/A
-120,Unassigned,N/A
-121,Unassigned,N/A
-122,Unassigned,N/A
-123,Unassigned,N/A
-124,Unassigned,N/A
-125,Unassigned,N/A
-126,Unassigned,N/A
-127,Unassigned,N/A
-128,Unassigned,N/A
-129,Unassigned,N/A
-130,Unassigned,N/A
-131,Unassigned,N/A
-132,Unassigned,N/A
-133,Unassigned,N/A
-134,Unassigned,N/A
-135,Unassigned,N/A
-136,Unassigned,N/A
-137,Unassigned,N/A
-138,Unassigned,N/A
-139,Unassigned,N/A
-140,Unassigned,N/A
-141,Unassigned,N/A
-142,Unassigned,N/A
-143,Unassigned,N/A
-144,Unassigned,N/A
-145,Unassigned,N/A
-146,Unassigned,N/A
-147,Unassigned,N/A
-148,Unassigned,N/A
-149,Unassigned,N/A
-150,Unassigned,N/A
-151,Unassigned,N/A
-152,Unassigned,N/A
-153,Unassigned,N/A
-154,Unassigned,N/A
-155,Unassigned,N/A
-156,Unassigned,N/A
-157,Unassigned,N/A
-158,Unassigned,N/A
-159,Unassigned,N/A
-160,Unassigned,N/A
-161,Unassigned,N/A
-162,Unassigned,N/A
-163,Unassigned,N/A
-164,Unassigned,N/A
-165,Unassigned,N/A
-166,Unassigned,N/A
-167,Unassigned,N/A
-168,Unassigned,N/A
-169,Unassigned,N/A
-170,Unassigned,N/A
-171,Unassigned,N/A
-172,Unassigned,N/A
-173,Unassigned,N/A
-174,Unassigned,N/A
-175,Unassigned,N/A
-176,Unassigned,N/A
-177,Unassigned,N/A
-178,Unassigned,N/A
-179,Unassigned,N/A
-180,Unassigned,N/A
-181,Unassigned,N/A
-182,Unassigned,N/A
-183,Unassigned,N/A
-184,Unassigned,N/A
-185,Unassigned,N/A
-186,Unassigned,N/A
-187,Unassigned,N/A
-188,Unassigned,N/A
-189,Unassigned,N/A
-190,Unassigned,N/A
-191,Unassigned,N/A
-192,Unassigned,N/A
-193,Unassigned,N/A
-194,Unassigned,N/A
-195,Unassigned,N/A
-196,Unassigned,N/A
-197,Unassigned,N/A
-198,Unassigned,N/A
-199,Unassigned,N/A
-200,OK,Valid
-201,Created,Valid
-202,Accepted,Valid
-203,Non-Authoritative Information,Valid
-204,No Content,Valid
-205,Reset Content,Valid
-206,Partial Content,Valid
-207,Multi-Status,Valid
-208,Already Reported,Valid
-209,Unassigned,N/A
-210,Unassigned,N/A
-211,Unassigned,N/A
-212,Unassigned,N/A
-213,Unassigned,N/A
-214,Unassigned,N/A
-215,Unassigned,N/A
-216,Unassigned,N/A
-217,Unassigned,N/A
-218,Unassigned,N/A
-219,Unassigned,N/A
-220,Unassigned,N/A
-221,Unassigned,N/A
-222,Unassigned,N/A
-223,Unassigned,N/A
-224,Unassigned,N/A
-225,Unassigned,N/A
-226,IM Used,Valid
-227,Unassigned,N/A
-228,Unassigned,N/A
-229,Unassigned,N/A
-230,Unassigned,N/A
-231,Unassigned,N/A
-232,Unassigned,N/A
-233,Unassigned,N/A
-234,Unassigned,N/A
-235,Unassigned,N/A
-236,Unassigned,N/A
-237,Unassigned,N/A
-238,Unassigned,N/A
-239,Unassigned,N/A
-240,Unassigned,N/A
-241,Unassigned,N/A
-242,Unassigned,N/A
-243,Unassigned,N/A
-244,Unassigned,N/A
-245,Unassigned,N/A
-246,Unassigned,N/A
-247,Unassigned,N/A
-248,Unassigned,N/A
-249,Unassigned,N/A
-250,Unassigned,N/A
-251,Unassigned,N/A
-252,Unassigned,N/A
-253,Unassigned,N/A
-254,Unassigned,N/A
-255,Unassigned,N/A
-256,Unassigned,N/A
-257,Unassigned,N/A
-258,Unassigned,N/A
-259,Unassigned,N/A
-260,Unassigned,N/A
-261,Unassigned,N/A
-262,Unassigned,N/A
-263,Unassigned,N/A
-264,Unassigned,N/A
-265,Unassigned,N/A
-266,Unassigned,N/A
-267,Unassigned,N/A
-268,Unassigned,N/A
-269,Unassigned,N/A
-270,Unassigned,N/A
-271,Unassigned,N/A
-272,Unassigned,N/A
-273,Unassigned,N/A
-274,Unassigned,N/A
-275,Unassigned,N/A
-276,Unassigned,N/A
-277,Unassigned,N/A
-278,Unassigned,N/A
-279,Unassigned,N/A
-280,Unassigned,N/A
-281,Unassigned,N/A
-282,Unassigned,N/A
-283,Unassigned,N/A
-284,Unassigned,N/A
-285,Unassigned,N/A
-286,Unassigned,N/A
-287,Unassigned,N/A
-288,Unassigned,N/A
-289,Unassigned,N/A
-290,Unassigned,N/A
-291,Unassigned,N/A
-292,Unassigned,N/A
-293,Unassigned,N/A
-294,Unassigned,N/A
-295,Unassigned,N/A
-296,Unassigned,N/A
-297,Unassigned,N/A
-298,Unassigned,N/A
-299,Unassigned,N/A
-300,Multiple Choices,Valid
-301,Moved Permanently,Valid
-302,Found,Valid
-303,See Other,Valid
-304,Not Modified,Valid
-305,Use Proxy,Valid
-306,(Unused),Valid
-307,Temporary Redirect,Valid
-308,Permanent Redirect,Valid
-309,Unassigned,N/A
-310,Unassigned,N/A
-311,Unassigned,N/A
-312,Unassigned,N/A
-313,Unassigned,N/A
-314,Unassigned,N/A
-315,Unassigned,N/A
-316,Unassigned,N/A
-317,Unassigned,N/A
-318,Unassigned,N/A
-319,Unassigned,N/A
-320,Unassigned,N/A
-321,Unassigned,N/A
-322,Unassigned,N/A
-323,Unassigned,N/A
-324,Unassigned,N/A
-325,Unassigned,N/A
-326,Unassigned,N/A
-327,Unassigned,N/A
-328,Unassigned,N/A
-329,Unassigned,N/A
-330,Unassigned,N/A
-331,Unassigned,N/A
-332,Unassigned,N/A
-333,Unassigned,N/A
-334,Unassigned,N/A
-335,Unassigned,N/A
-336,Unassigned,N/A
-337,Unassigned,N/A
-338,Unassigned,N/A
-339,Unassigned,N/A
-340,Unassigned,N/A
-341,Unassigned,N/A
-342,Unassigned,N/A
-343,Unassigned,N/A
-344,Unassigned,N/A
-345,Unassigned,N/A
-346,Unassigned,N/A
-347,Unassigned,N/A
-348,Unassigned,N/A
-349,Unassigned,N/A
-350,Unassigned,N/A
-351,Unassigned,N/A
-352,Unassigned,N/A
-353,Unassigned,N/A
-354,Unassigned,N/A
-355,Unassigned,N/A
-356,Unassigned,N/A
-357,Unassigned,N/A
-358,Unassigned,N/A
-359,Unassigned,N/A
-360,Unassigned,N/A
-361,Unassigned,N/A
-362,Unassigned,N/A
-363,Unassigned,N/A
-364,Unassigned,N/A
-365,Unassigned,N/A
-366,Unassigned,N/A
-367,Unassigned,N/A
-368,Unassigned,N/A
-369,Unassigned,N/A
-370,Unassigned,N/A
-371,Unassigned,N/A
-372,Unassigned,N/A
-373,Unassigned,N/A
-374,Unassigned,N/A
-375,Unassigned,N/A
-376,Unassigned,N/A
-377,Unassigned,N/A
-378,Unassigned,N/A
-379,Unassigned,N/A
-380,Unassigned,N/A
-381,Unassigned,N/A
-382,Unassigned,N/A
-383,Unassigned,N/A
-384,Unassigned,N/A
-385,Unassigned,N/A
-386,Unassigned,N/A
-387,Unassigned,N/A
-388,Unassigned,N/A
-389,Unassigned,N/A
-390,Unassigned,N/A
-391,Unassigned,N/A
-392,Unassigned,N/A
-393,Unassigned,N/A
-394,Unassigned,N/A
-395,Unassigned,N/A
-396,Unassigned,N/A
-397,Unassigned,N/A
-398,Unassigned,N/A
-399,Unassigned,N/A
-400,Bad Request,Broken
-401,Unauthorized,Broken
-402,Payment Required,Broken
-403,Forbidden,Broken
-404,Not Found,Broken
-405,Method Not Allowed,Broken
-406,Not Acceptable,Broken
-407,Proxy Authentication Required,Broken
-408,Request Timeout,Broken
-409,Conflict,Broken
-410,Gone,Broken
-411,Length Required,Broken
-412,Precondition Failed,Broken
-413,Content Too Large,Broken
-414,URI Too Long,Broken
-415,Unsupported Media Type,Broken
-416,Range Not Satisfiable,Broken
-417,Expectation Failed,Broken
-418,(Unused),Broken
-419,Unassigned,N/A
-420,Unassigned,N/A
-421,Misdirected Request,Broken
-422,Unprocessable Content,Broken
-423,Locked,Broken
-424,Failed Dependency,Broken
-425,Too Early,Broken
-426,Upgrade Required,Broken
-427,Unassigned,N/A
-428,Precondition Required,Broken
-429,Too Many Requests,Broken
-430,Unassigned,N/A
-431,Request Header Fields Too Large,Broken
-432,Unassigned,N/A
-433,Unassigned,N/A
-434,Unassigned,N/A
-435,Unassigned,N/A
-436,Unassigned,N/A
-437,Unassigned,N/A
-438,Unassigned,N/A
-439,Unassigned,N/A
-440,Unassigned,N/A
-441,Unassigned,N/A
-442,Unassigned,N/A
-443,Unassigned,N/A
-444,Unassigned,N/A
-445,Unassigned,N/A
-446,Unassigned,N/A
-447,Unassigned,N/A
-448,Unassigned,N/A
-449,Unassigned,N/A
-450,Unassigned,N/A
-451,Unavailable For Legal Reasons,Broken
-452,Unassigned,N/A
-453,Unassigned,N/A
-454,Unassigned,N/A
-455,Unassigned,N/A
-456,Unassigned,N/A
-457,Unassigned,N/A
-458,Unassigned,N/A
-459,Unassigned,N/A
-460,Unassigned,N/A
-461,Unassigned,N/A
-462,Unassigned,N/A
-463,Unassigned,N/A
-464,Unassigned,N/A
-465,Unassigned,N/A
-466,Unassigned,N/A
-467,Unassigned,N/A
-468,Unassigned,N/A
-469,Unassigned,N/A
-470,Unassigned,N/A
-471,Unassigned,N/A
-472,Unassigned,N/A
-473,Unassigned,N/A
-474,Unassigned,N/A
-475,Unassigned,N/A
-476,Unassigned,N/A
-477,Unassigned,N/A
-478,Unassigned,N/A
-479,Unassigned,N/A
-480,Unassigned,N/A
-481,Unassigned,N/A
-482,Unassigned,N/A
-483,Unassigned,N/A
-484,Unassigned,N/A
-485,Unassigned,N/A
-486,Unassigned,N/A
-487,Unassigned,N/A
-488,Unassigned,N/A
-489,Unassigned,N/A
-490,Unassigned,N/A
-491,Unassigned,N/A
-492,Unassigned,N/A
-493,Unassigned,N/A
-494,Unassigned,N/A
-495,Unassigned,N/A
-496,Unassigned,N/A
-497,Unassigned,N/A
-498,Unassigned,N/A
-499,Unassigned,N/A
-500,Internal Server Error,Broken
-501,Not Implemented,Broken
-502,Bad Gateway,Broken
-503,Service Unavailable,Broken
-504,Gateway Timeout,Broken
-505,HTTP Version Not Supported,Broken
-506,Variant Also Negotiates,Broken
-507,Insufficient Storage,Broken
-508,Loop Detected,Broken
-509,Unassigned,N/A
-510,Not Extended (OBSOLETED),Broken
-511,Network Authentication Required,Broken
-512,Unassigned,N/A
-513,Unassigned,N/A
-514,Unassigned,N/A
-515,Unassigned,N/A
-516,Unassigned,N/A
-517,Unassigned,N/A
-518,Unassigned,N/A
-519,Unassigned,N/A
-520,Unassigned,N/A
-521,Unassigned,N/A
-522,Unassigned,N/A
-523,Unassigned,N/A
-524,Unassigned,N/A
-525,Unassigned,N/A
-526,Unassigned,N/A
-527,Unassigned,N/A
-528,Unassigned,N/A
-529,Unassigned,N/A
-530,Unassigned,N/A
-531,Unassigned,N/A
-532,Unassigned,N/A
-533,Unassigned,N/A
-534,Unassigned,N/A
-535,Unassigned,N/A
-536,Unassigned,N/A
-537,Unassigned,N/A
-538,Unassigned,N/A
-539,Unassigned,N/A
-540,Unassigned,N/A
-541,Unassigned,N/A
-542,Unassigned,N/A
-543,Unassigned,N/A
-544,Unassigned,N/A
-545,Unassigned,N/A
-546,Unassigned,N/A
-547,Unassigned,N/A
-548,Unassigned,N/A
-549,Unassigned,N/A
-550,Unassigned,N/A
-551,Unassigned,N/A
-552,Unassigned,N/A
-553,Unassigned,N/A
-554,Unassigned,N/A
-555,Unassigned,N/A
-556,Unassigned,N/A
-557,Unassigned,N/A
-558,Unassigned,N/A
-559,Unassigned,N/A
-560,Unassigned,N/A
-561,Unassigned,N/A
-562,Unassigned,N/A
-563,Unassigned,N/A
-564,Unassigned,N/A
-565,Unassigned,N/A
-566,Unassigned,N/A
-567,Unassigned,N/A
-568,Unassigned,N/A
-569,Unassigned,N/A
-570,Unassigned,N/A
-571,Unassigned,N/A
-572,Unassigned,N/A
-573,Unassigned,N/A
-574,Unassigned,N/A
-575,Unassigned,N/A
-576,Unassigned,N/A
-577,Unassigned,N/A
-578,Unassigned,N/A
-579,Unassigned,N/A
-580,Unassigned,N/A
-581,Unassigned,N/A
-582,Unassigned,N/A
-583,Unassigned,N/A
-584,Unassigned,N/A
-585,Unassigned,N/A
-586,Unassigned,N/A
-587,Unassigned,N/A
-588,Unassigned,N/A
-589,Unassigned,N/A
-590,Unassigned,N/A
-591,Unassigned,N/A
-592,Unassigned,N/A
-593,Unassigned,N/A
-594,Unassigned,N/A
-595,Unassigned,N/A
-596,Unassigned,N/A
-597,Unassigned,N/A
-598,Unassigned,N/A
-599,Unassigned,N/A
+code,description
+-1,Internal Network File
+100,Continue
+101,Switching Protocols
+102,Processing
+103,Early Hints
+104,Unassigned
+105,Unassigned
+106,Unassigned
+107,Unassigned
+108,Unassigned
+109,Unassigned
+110,Unassigned
+111,Unassigned
+112,Unassigned
+113,Unassigned
+114,Unassigned
+115,Unassigned
+116,Unassigned
+117,Unassigned
+118,Unassigned
+119,Unassigned
+120,Unassigned
+121,Unassigned
+122,Unassigned
+123,Unassigned
+124,Unassigned
+125,Unassigned
+126,Unassigned
+127,Unassigned
+128,Unassigned
+129,Unassigned
+130,Unassigned
+131,Unassigned
+132,Unassigned
+133,Unassigned
+134,Unassigned
+135,Unassigned
+136,Unassigned
+137,Unassigned
+138,Unassigned
+139,Unassigned
+140,Unassigned
+141,Unassigned
+142,Unassigned
+143,Unassigned
+144,Unassigned
+145,Unassigned
+146,Unassigned
+147,Unassigned
+148,Unassigned
+149,Unassigned
+150,Unassigned
+151,Unassigned
+152,Unassigned
+153,Unassigned
+154,Unassigned
+155,Unassigned
+156,Unassigned
+157,Unassigned
+158,Unassigned
+159,Unassigned
+160,Unassigned
+161,Unassigned
+162,Unassigned
+163,Unassigned
+164,Unassigned
+165,Unassigned
+166,Unassigned
+167,Unassigned
+168,Unassigned
+169,Unassigned
+170,Unassigned
+171,Unassigned
+172,Unassigned
+173,Unassigned
+174,Unassigned
+175,Unassigned
+176,Unassigned
+177,Unassigned
+178,Unassigned
+179,Unassigned
+180,Unassigned
+181,Unassigned
+182,Unassigned
+183,Unassigned
+184,Unassigned
+185,Unassigned
+186,Unassigned
+187,Unassigned
+188,Unassigned
+189,Unassigned
+190,Unassigned
+191,Unassigned
+192,Unassigned
+193,Unassigned
+194,Unassigned
+195,Unassigned
+196,Unassigned
+197,Unassigned
+198,Unassigned
+199,Unassigned
+200,OK
+201,Created
+202,Accepted
+203,Non-Authoritative Information
+204,No Content
+205,Reset Content
+206,Partial Content
+207,Multi-Status
+208,Already Reported
+209,Unassigned
+210,Unassigned
+211,Unassigned
+212,Unassigned
+213,Unassigned
+214,Unassigned
+215,Unassigned
+216,Unassigned
+217,Unassigned
+218,Unassigned
+219,Unassigned
+220,Unassigned
+221,Unassigned
+222,Unassigned
+223,Unassigned
+224,Unassigned
+225,Unassigned
+226,IM Used
+227,Unassigned
+228,Unassigned
+229,Unassigned
+230,Unassigned
+231,Unassigned
+232,Unassigned
+233,Unassigned
+234,Unassigned
+235,Unassigned
+236,Unassigned
+237,Unassigned
+238,Unassigned
+239,Unassigned
+240,Unassigned
+241,Unassigned
+242,Unassigned
+243,Unassigned
+244,Unassigned
+245,Unassigned
+246,Unassigned
+247,Unassigned
+248,Unassigned
+249,Unassigned
+250,Unassigned
+251,Unassigned
+252,Unassigned
+253,Unassigned
+254,Unassigned
+255,Unassigned
+256,Unassigned
+257,Unassigned
+258,Unassigned
+259,Unassigned
+260,Unassigned
+261,Unassigned
+262,Unassigned
+263,Unassigned
+264,Unassigned
+265,Unassigned
+266,Unassigned
+267,Unassigned
+268,Unassigned
+269,Unassigned
+270,Unassigned
+271,Unassigned
+272,Unassigned
+273,Unassigned
+274,Unassigned
+275,Unassigned
+276,Unassigned
+277,Unassigned
+278,Unassigned
+279,Unassigned
+280,Unassigned
+281,Unassigned
+282,Unassigned
+283,Unassigned
+284,Unassigned
+285,Unassigned
+286,Unassigned
+287,Unassigned
+288,Unassigned
+289,Unassigned
+290,Unassigned
+291,Unassigned
+292,Unassigned
+293,Unassigned
+294,Unassigned
+295,Unassigned
+296,Unassigned
+297,Unassigned
+298,Unassigned
+299,Unassigned
+300,Multiple Choices
+301,Moved Permanently
+302,Found
+303,See Other
+304,Not Modified
+305,Use Proxy
+306,(Unused)
+307,Temporary Redirect
+308,Permanent Redirect
+309,Unassigned
+310,Unassigned
+311,Unassigned
+312,Unassigned
+313,Unassigned
+314,Unassigned
+315,Unassigned
+316,Unassigned
+317,Unassigned
+318,Unassigned
+319,Unassigned
+320,Unassigned
+321,Unassigned
+322,Unassigned
+323,Unassigned
+324,Unassigned
+325,Unassigned
+326,Unassigned
+327,Unassigned
+328,Unassigned
+329,Unassigned
+330,Unassigned
+331,Unassigned
+332,Unassigned
+333,Unassigned
+334,Unassigned
+335,Unassigned
+336,Unassigned
+337,Unassigned
+338,Unassigned
+339,Unassigned
+340,Unassigned
+341,Unassigned
+342,Unassigned
+343,Unassigned
+344,Unassigned
+345,Unassigned
+346,Unassigned
+347,Unassigned
+348,Unassigned
+349,Unassigned
+350,Unassigned
+351,Unassigned
+352,Unassigned
+353,Unassigned
+354,Unassigned
+355,Unassigned
+356,Unassigned
+357,Unassigned
+358,Unassigned
+359,Unassigned
+360,Unassigned
+361,Unassigned
+362,Unassigned
+363,Unassigned
+364,Unassigned
+365,Unassigned
+366,Unassigned
+367,Unassigned
+368,Unassigned
+369,Unassigned
+370,Unassigned
+371,Unassigned
+372,Unassigned
+373,Unassigned
+374,Unassigned
+375,Unassigned
+376,Unassigned
+377,Unassigned
+378,Unassigned
+379,Unassigned
+380,Unassigned
+381,Unassigned
+382,Unassigned
+383,Unassigned
+384,Unassigned
+385,Unassigned
+386,Unassigned
+387,Unassigned
+388,Unassigned
+389,Unassigned
+390,Unassigned
+391,Unassigned
+392,Unassigned
+393,Unassigned
+394,Unassigned
+395,Unassigned
+396,Unassigned
+397,Unassigned
+398,Unassigned
+399,Unassigned
+400,Bad Request
+401,Unauthorized
+402,Payment Required
+403,Forbidden
+404,Not Found
+405,Method Not Allowed
+406,Not Acceptable
+407,Proxy Authentication Required
+408,Request Timeout
+409,Conflict
+410,Gone
+411,Length Required
+412,Precondition Failed
+413,Content Too Large
+414,URI Too Long
+415,Unsupported Media Type
+416,Range Not Satisfiable
+417,Expectation Failed
+418,(Unused)
+419,Unassigned
+420,Unassigned
+421,Misdirected Request
+422,Unprocessable Content
+423,Locked
+424,Failed Dependency
+425,Too Early
+426,Upgrade Required
+427,Unassigned
+428,Precondition Required
+429,Too Many Requests
+430,Unassigned
+431,Request Header Fields Too Large
+432,Unassigned
+433,Unassigned
+434,Unassigned
+435,Unassigned
+436,Unassigned
+437,Unassigned
+438,Unassigned
+439,Unassigned
+440,Unassigned
+441,Unassigned
+442,Unassigned
+443,Unassigned
+444,Unassigned
+445,Unassigned
+446,Unassigned
+447,Unassigned
+448,Unassigned
+449,Unassigned
+450,Unassigned
+451,Unavailable For Legal Reasons
+452,Unassigned
+453,Unassigned
+454,Unassigned
+455,Unassigned
+456,Unassigned
+457,Unassigned
+458,Unassigned
+459,Unassigned
+460,Unassigned
+461,Unassigned
+462,Unassigned
+463,Unassigned
+464,Unassigned
+465,Unassigned
+466,Unassigned
+467,Unassigned
+468,Unassigned
+469,Unassigned
+470,Unassigned
+471,Unassigned
+472,Unassigned
+473,Unassigned
+474,Unassigned
+475,Unassigned
+476,Unassigned
+477,Unassigned
+478,Unassigned
+479,Unassigned
+480,Unassigned
+481,Unassigned
+482,Unassigned
+483,Unassigned
+484,Unassigned
+485,Unassigned
+486,Unassigned
+487,Unassigned
+488,Unassigned
+489,Unassigned
+490,Unassigned
+491,Unassigned
+492,Unassigned
+493,Unassigned
+494,Unassigned
+495,Unassigned
+496,Unassigned
+497,Unassigned
+498,Unassigned
+499,Unassigned
+500,Internal Server Error
+501,Not Implemented
+502,Bad Gateway
+503,Service Unavailable
+504,Gateway Timeout
+505,HTTP Version Not Supported
+506,Variant Also Negotiates
+507,Insufficient Storage
+508,Loop Detected
+509,Unassigned
+510,Not Extended (OBSOLETED)
+511,Network Authentication Required
+512,Unassigned
+513,Unassigned
+514,Unassigned
+515,Unassigned
+516,Unassigned
+517,Unassigned
+518,Unassigned
+519,Unassigned
+520,Unassigned
+521,Unassigned
+522,Unassigned
+523,Unassigned
+524,Unassigned
+525,Unassigned
+526,Unassigned
+527,Unassigned
+528,Unassigned
+529,Unassigned
+530,Unassigned
+531,Unassigned
+532,Unassigned
+533,Unassigned
+534,Unassigned
+535,Unassigned
+536,Unassigned
+537,Unassigned
+538,Unassigned
+539,Unassigned
+540,Unassigned
+541,Unassigned
+542,Unassigned
+543,Unassigned
+544,Unassigned
+545,Unassigned
+546,Unassigned
+547,Unassigned
+548,Unassigned
+549,Unassigned
+550,Unassigned
+551,Unassigned
+552,Unassigned
+553,Unassigned
+554,Unassigned
+555,Unassigned
+556,Unassigned
+557,Unassigned
+558,Unassigned
+559,Unassigned
+560,Unassigned
+561,Unassigned
+562,Unassigned
+563,Unassigned
+564,Unassigned
+565,Unassigned
+566,Unassigned
+567,Unassigned
+568,Unassigned
+569,Unassigned
+570,Unassigned
+571,Unassigned
+572,Unassigned
+573,Unassigned
+574,Unassigned
+575,Unassigned
+576,Unassigned
+577,Unassigned
+578,Unassigned
+579,Unassigned
+580,Unassigned
+581,Unassigned
+582,Unassigned
+583,Unassigned
+584,Unassigned
+585,Unassigned
+586,Unassigned
+587,Unassigned
+588,Unassigned
+589,Unassigned
+590,Unassigned
+591,Unassigned
+592,Unassigned
+593,Unassigned
+594,Unassigned
+595,Unassigned
+596,Unassigned
+597,Unassigned
+598,Unassigned
+599,Unassigned
