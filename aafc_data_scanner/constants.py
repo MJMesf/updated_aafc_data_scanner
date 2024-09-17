@@ -34,8 +34,9 @@ AAFC_ORG_ID = '2ABCCA59-6C57-4886-99E7-85EC6C719218'
 DATASETS_COLS = ['id', 'title_en', 'title_fr', 'published', 'modified',
                  'metadata_created', 'metadata_modified', 'num_resources', 
                  'maintainer_email', 'maintainer_name', 'collection', 
-                 'frequency', 'up_to_date', 'official_lang', 'open_formats',
-                 'spec', 'registry_link', 'catalogue_link']
+                 'frequency', 'harvested', 'internal',
+                 'up_to_date', 'official_lang', 'open_formats', 'spec', 
+                 'registry_link', 'catalogue_link']
 RESOURCES_COLS = ['id', 'title_en', 'title_fr', 'created', 
                   'metadata_modified', 'format', 'lang', 
                   'dataset_id', 'resource_type', 'url', 'url_status',

@@ -129,6 +129,26 @@
 			}
 		},
 		{
+			"name": "harvested",
+			"title": "Harvested",
+            "description": "True if the dataset is harvested. Field directly retrieved from the catalogue's metadata field 'aafc_is_harvested'.",
+            "example": "TRUE",
+            "type": "boolean",
+			"constraints": {
+				"required": true
+			}
+		},
+		{
+			"name": "internal",
+			"title": "Internal",
+            "description": "True if the dataset is only internal, i.e. not open. Field directly retrieved from the catalogue's metadata field 'publication' (equal to 'internal' or 'open_government').",
+            "example": "TRUE",
+            "type": "boolean",
+			"constraints": {
+				"required": true
+			}
+		},
+		{
 			"name": "up_to_date",
 			"title": "Up to date",
             "description": "Currency status: TRUE means dataset is up to date; FALSE means it needs an update. Field computed, based on 'frequency' and 'modified' columns.",
@@ -165,8 +185,7 @@
             "example": "TRUE",
             "type": "boolean",
 			"constraints": {
-				"required": true,
-				"type": "http://www.w3.org/2001/XMLSchema#boolean"
+				"required": true
 			}
 		},
 		{

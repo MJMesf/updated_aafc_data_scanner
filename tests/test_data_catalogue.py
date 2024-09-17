@@ -15,16 +15,16 @@ class TestDataCatalogue(unittest.TestCase):
     def test_init(self):
 
         base_url1 = 'https:/example.com/'
-        dc1 = DataCatalogue(base_url1)
+        dc1 = RequestsDataCatalogue(base_url1)
         self.assertEqual(dc1.base_url, base_url1)
 
         base_url2 = ''
-        dc2 = DataCatalogue(base_url2)
+        dc2 = DriverDataCatalogue(base_url2)
         self.assertEqual(dc2.base_url, base_url2)
 
     def test_request_ckan(self):
 
-        registry = DataCatalogue(REGISTRY_BASE_URL)
+        registry = RequestsDataCatalogue(REGISTRY_BASE_URL)
 
         url1 = REGISTRY_BASE_URL + 'package_list'
         result1 = registry.request_ckan(url1)
@@ -49,14 +49,14 @@ class TestDataCatalogue(unittest.TestCase):
                         'Request Error:\nUnexpected status code: 403')
 
     def test_list_datasets(self):
-        registry = DataCatalogue(REGISTRY_BASE_URL)
+        registry = RequestsDataCatalogue(REGISTRY_BASE_URL)
         datasets = registry.list_datasets()
         self.assertIsInstance(datasets, list)
         self.assertGreaterEqual(len(datasets), 41000)
 
     def test_get_dataset(self):
 
-        registry = DataCatalogue(REGISTRY_BASE_URL)
+        registry = RequestsDataCatalogue(REGISTRY_BASE_URL)
 
         id1 = '000bb94e-d929-4214-8893-bb42b114b0c3'
         title1 = 'COVID-19: How to care at home for someone who has or may have been exposed'
@@ -72,7 +72,7 @@ class TestDataCatalogue(unittest.TestCase):
 
     def test_search_datasets(self):
 
-        registry = DataCatalogue(REGISTRY_BASE_URL)
+        registry = RequestsDataCatalogue(REGISTRY_BASE_URL)
         
         datasets1 = registry.search_datasets(date_published='"2013-03-21%2000:00:00"')
         self.assertEqual(len(datasets1), 4)
@@ -89,9 +89,9 @@ class TestDataCatalogue(unittest.TestCase):
     
     def test_get_resource(self):
 
-        registry = DataCatalogue(REGISTRY_BASE_URL)
+        registry = RequestsDataCatalogue(REGISTRY_BASE_URL)
 
-        id1 = 'a59fa2be-d0e5-4209-990c-cafe11c7286e'
+        id1 = 'b3146b7c-5809-4cf9-b8dc-ced9ea3167ff'
         name1 = 'Data Product Specification (French)'
         result1 = registry.get_resource(id1)
         self.assertEqual(result1['id'], id1)

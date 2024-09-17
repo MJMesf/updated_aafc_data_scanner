@@ -55,13 +55,13 @@ class Inventory:
             record['metadata_modified'] = dataset['metadata_modified']
             record['num_resources'] = dataset['num_resources']
             if dataset['maintainer_email'] != None:
-                record['maintainer_email'] = dataset['maintainer_email']
+                record['maintainer_email'] = dataset['maintainer_email'].lower()
             elif 'data_steward_email' in dataset.keys() and \
                     dataset['data_steward_email'] != None:
-                record['maintainer_email'] = dataset['data_steward_email']
+                record['maintainer_email'] = dataset['data_steward_email'].lower()
             elif 'author_email' in dataset.keys() and \
                     dataset['author_email'] != None:
-                record['maintainer_email'] = dataset['author_email']
+                record['maintainer_email'] = dataset['author_email'].lower()
             else:
                 record['maintainer_email'] = None
             record['maintainer_name'] = infer_name_from_email(
@@ -74,6 +74,19 @@ class Inventory:
             if not isinstance(record['frequency'], str):
                 print(f'Error for id {record['id']}:',
                       f'frequency is {record['frequency']} (not str)')
+            # checks if dataset is harvested
+            if 'aafc_is_harvested' in dataset.keys() and \
+                    dataset['aafc_is_harvested'] == 'true':
+                record['harvested'] = True
+            else:
+                record['harvested'] = False
+            # checks if dataset is internal
+            if 'publication' in dataset.keys() and \
+                    dataset['publication'] == 'internal':
+                record['internal'] = True
+            else:
+                record['internal'] = False
+
             record['registry_link'] = REGISTRY_DATASETS_BASE_URL.format(record['id'])
             record['catalogue_link'] = CATALOGUE_DATASETS_BASE_URL.format(record['id'])
             # 'modified', 'up_to_date', 'official_lang', 'open_formats' and 'spec' 
@@ -166,8 +179,10 @@ class Inventory:
         needs update or cannot read the frequency. (Note: readable frequencies 
         are stored in formats as P1D, P3W, P6M, P1Y, etc.)
         """
-        
-        # Computing oldest date considered as valid to be up to date
+        # returning True (up to date) if the dataset is harvested
+        if ds['harvested']:
+            return True
+        # computing oldest date considered as valid to be up to date
         frequency: str = ds['frequency']
         if isinstance(frequency, str) and frequency.startswith('P') and \
                 frequency != 'PT1S':

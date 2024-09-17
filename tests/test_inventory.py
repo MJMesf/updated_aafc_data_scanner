@@ -43,7 +43,7 @@ class TestDataCatalogue(unittest.TestCase):
         # datasets fetched for testing are noted as: frequency:"not planned"
         # hence they should not change with time and tests should keep working
         inventory = Inventory()
-        registry = DataCatalogue(REGISTRY_BASE_URL)
+        registry = RequestsDataCatalogue(REGISTRY_BASE_URL)
         lock = threading.Lock()
         test_datasets = pd.read_csv('./test_files/datasets.csv', 
                                     encoding='utf-8-sig')
@@ -60,7 +60,7 @@ class TestDataCatalogue(unittest.TestCase):
 
         session = TenaciousSession()
         inventory = Inventory()
-        registry = DataCatalogue(REGISTRY_BASE_URL, session)
+        registry = RequestsDataCatalogue(REGISTRY_BASE_URL, session)
         lock = threading.Lock()
         test_resources = pd.read_csv('test_files/resources.csv', 
                                      encoding='utf-8-sig')
@@ -268,7 +268,7 @@ class TestDataCatalogue(unittest.TestCase):
     def test_collect_dataset_with_resources(self):
 
         inventory = Inventory()
-        dc = DataCatalogue(REGISTRY_BASE_URL)
+        dc = RequestsDataCatalogue(REGISTRY_BASE_URL)
         datasets_lock = threading.Lock()
         resources_IDs_lock = threading.Lock()
         datasets = pd.read_csv('./test_files/datasets.csv', 
