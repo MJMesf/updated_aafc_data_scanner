@@ -118,6 +118,16 @@
 			}
 		},
 		{
+			"name": "https",
+			"title": "HTTPS Veriication",
+            "description": "Checks if url starts with 'https' (vs. http), or 'file' for intranet resources.",
+            "example": "TRUE",
+            "type": "boolean",
+			"constraints": {
+				"required": true
+			}
+		},
+		{
 			"name": "registry_link",
 			"title": "Registry Link",
             "description": "URL to the resource's page on the open registry (open.canada.ca).",

@@ -67,7 +67,7 @@ def date_ago(n: float, unit: str,
                 date = base_date - days_delta
         case 'year':
             n_in_months: int = round(n * 12) # e.g. 0.33 year -> 4 months
-            date: dt.datetime = date_ago(n_in_months, 'month', from_)
+            date = date_ago(n_in_months, 'month', from_)
         case _:
             raise ValueError(f'Illegal argument (unit = {unit}). Allowed' +\
                              ' values are day, week, month and year.')
@@ -82,7 +82,7 @@ def infer_name_from_email(email: str) -> str:
     def upper_after_mac(m: re.Match) -> str:
             return m.group(1) + m.group(2).upper()
     
-    if email != None and email != '':
+    if email and email != '':
         name: str = ' '.join(re.split(r'[.\-_]', 
                                     email.split('@')[0].lower())).title()
         name = re.sub(r'(Ma?c)([a-z])', upper_after_mac, name)

@@ -12,7 +12,7 @@ from selenium import webdriver
 from selenium.webdriver import Edge
 from selenium.webdriver import EdgeOptions
 
-from typing import Any, List
+from typing import Any, List, Optional
 
 from .constants import *
 
@@ -140,15 +140,15 @@ class RequestsDataCatalogue(DataCatalogue):
 @dataclass
 class DriverDataCatalogue(DataCatalogue):
     
-    driver: webdriver = None
+    driver: Edge
     """Selenium webdriver initialized with specific settings to access AAFC 
     Open Data Catalogue without authentication issues (uses Edge for 
     automatic AAFC employee microsoft authentication)
     """
 
     # overrides dataclass default constructor
-    def __post_init__(self):
-        # self.base_url = base_url
+    def __init__(self, base_url):
+        self.base_url = base_url
         options = EdgeOptions()
         options.add_argument("--headless=new")
         options.add_experimental_option('excludeSwitches', ['enable-logging'])

@@ -115,6 +115,8 @@ class Inventory:
             record['dataset_id'] = resource['package_id']
             record['resource_type'] = resource['resource_type']
             record['url'] = resource['url']
+            record['https'] = str(resource['url']).startswith('https') or \
+                str(resource['url']).startswith('file')
             record['registry_link'] = REGISTRY_RESOURCES_BASE_URL.format(
                 record['dataset_id'], record['id']
             )
@@ -240,7 +242,8 @@ class Inventory:
         """Returns True if dataset ds is compliant with specification / data 
         dictionary requirements; false otherwise (i.e. if the dataset has 1+ 
         resource classed as 'dataset', checks if it also has resources whose title 
-        include "data dictionary" or "specification"; if not, is non-compliant).
+        include "data dictionary" or "specification", or with a title that starts 
+        or ends with "dd_" / "_dd" respectively; if not, is non-compliant).
         """
         warnings.filterwarnings('ignore', category=UserWarning)
         resources = all_resources[all_resources['dataset_id'] == ds['id']].copy()
@@ -252,6 +255,13 @@ class Inventory:
             return False
         # no dataset => no need for data dictionary/specification
         return True
+
+    # @staticmethod
+    # def get_https_check(res: pd.Series) -> bool:
+    #     """Returns True if resource's url starts with 'https', False otherwise.
+    #     (Also returns true if starts with 'file', for intranet documents)
+    #     """
+    #     return res['url'].startswith('https') or res['url'].startswith('file')
 
 
     def _collect_dataset_with_resources(
@@ -265,21 +275,21 @@ class Inventory:
         in self datasets and resources dataframes. Both of these need a 
         provided mutex/lock in the arguments.
         """
-        if driver_lock != None:
+        if driver_lock:
             driver_lock.acquire()
         dataset: dict = dc.get_dataset(id)
-        if driver_lock != None:
+        if driver_lock:
             driver_lock.release()
         # adds dataset to the common dataframe
         Inventory.add_dataset(dataset, self.datasets, datasets_lock)
         for resource in dataset['resources']:
             # adds resource to the common dataframe
             Inventory.add_resource(resource, self.resources, resources_lock)
-        if isinstance(pbar, tqdm): # false if pbar == None
+        if isinstance(pbar, tqdm): # false if pbar is None
             pbar.update()
 
     def inventory(self, dc: DataCatalogue, 
-                  datasets_IDs: Optional[List[str]] = None) -> None:
+                  datasets_IDs: Optional[List[str]] = []) -> None:
         """Fetches information of all datasets and resources of the given 
         DataCatalogue dc and stores it in self datasets and resources 
         dataframes, in parallel.
@@ -289,7 +299,7 @@ class Inventory:
         print('Collecting information of all datasets ...')
         start = time.time() # times datasets collection
 
-        if datasets_IDs == None:
+        if not datasets_IDs:
             # listing all the datasets IDs:
             datasets_IDs = dc.search_datasets(owner_org=AAFC_ORG_ID)
         # initializing the progress bar
@@ -351,8 +361,9 @@ class Inventory:
         )
 
     def complete_missing_fields(self) -> None:
-        """Completes columns 'modified', 'up_to_date', 'official_lang', '
-        open_formats' and 'spec' (details given in getters documentation).
+        """Completes columns of datasets inventory: 'modified', 'up_to_date', 
+        'official_lang', 'open_formats' and 'spec' (details given in getters 
+        documentation).
         """
         # Computing modified for datasets
         print()

@@ -59,7 +59,6 @@ class TestDataCatalogue(unittest.TestCase):
     def test_add_resource(self):
 
         session = TenaciousSession()
-        inventory = Inventory()
         registry = RequestsDataCatalogue(REGISTRY_BASE_URL, session)
         lock = threading.Lock()
         test_resources = pd.read_csv('test_files/resources.csv', 
@@ -71,7 +70,7 @@ class TestDataCatalogue(unittest.TestCase):
             expected = test_resources.loc[[i]].copy()
             expected.reset_index(drop=True, inplace=True)
             actual = pd.DataFrame(columns=RESOURCES_COLS)
-            inventory.add_resource(resource, actual, lock)
+            Inventory.add_resource(resource, actual, lock)
             # to avoid issues with 200/302 when testing
             # result['url'] = None 
             self.assert_and_see_differences(actual, expected)
