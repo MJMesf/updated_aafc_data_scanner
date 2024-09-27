@@ -84,7 +84,7 @@ def infer_name_from_email(email: str) -> str:
     
     if email and email != '':
         name: str = ' '.join(re.split(r'[.\-_]', 
-                                    email.split('@')[0].lower())).title()
+                             email.split('@')[0].lower())).title()
         name = re.sub(r'(Ma?c)([a-z])', upper_after_mac, name)
         name = re.sub(r'^MacKenzie', 'Mackenzie', name)
         return name

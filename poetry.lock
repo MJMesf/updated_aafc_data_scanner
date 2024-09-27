@@ -1367,6 +1367,17 @@ trio = ">=0.11"
 wsproto = ">=0.14"
 
 [[package]]
+name = "types-colorama"
+version = "0.4.15.20240311"
+description = "Typing stubs for colorama"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "types-colorama-0.4.15.20240311.tar.gz", hash = "sha256:a28e7f98d17d2b14fb9565d32388e419f4108f557a7d939a66319969b2b99c7a"},
+    {file = "types_colorama-0.4.15.20240311-py3-none-any.whl", hash = "sha256:6391de60ddc0db3f147e31ecb230006a6823e81e380862ffca1e4695c13a0b8e"},
+]
+
+[[package]]
 name = "types-pytz"
 version = "2024.1.0.20240417"
 description = "Typing stubs for pytz"
@@ -1502,4 +1513,4 @@ h11 = ">=0.9.0,<1"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.12,<3.14"
-content-hash = "5d80247c494c052d3e96a47d3bdcaeb05412e5f53e0700d233d49bea7796811f"
+content-hash = "78320b9933f7e1b0415c2533a9769612b94c8e1e3b958dcb266af6e7ad85f8bb"

@@ -87,6 +87,78 @@
 			}
 		},
 		{
+			"name": "on_registry",
+			"title": "On Registry",
+            "description": "True if the dataset is fetched or can be found on the registry.",
+            "example": "TRUE",
+            "type": "boolean",
+			"constraints": {
+				"required": true
+			}
+		},
+		{
+			"name": "on_catalogue",
+			"title": "On Catalogue",
+            "description": "True if the dataset is fetched or can be found on the catalogue.",
+            "example": "TRUE",
+            "type": "boolean",
+			"constraints": {
+				"required": true
+			}
+		},
+		{
+			"name": "org",
+			"title": "Organization (Abbreviation)",
+            "description": "Organization id name / abbreviation in both official languages (see open_canada_orgs_list.csv for full list and references). Field directly retrieved from the open government platform, or set by default to AAFC's id if the dataset is only on the catalogue.",
+            "example": "aafc-aac",
+            "type": "string",
+			"constraints": {
+				"required": true
+			}
+		},
+		{
+			"name": "org_title",
+			"title": "Organization (English Title)",
+            "description": "Organization unofficial common english name (see open_canada_orgs_list.csv for full list and references). Field directly retrieved from the open government platform, or set by default to AAFC's title if the dataset is only on the catalogue.",
+            "example": "Agriculture and Agri-Food Canada",
+            "type": "string",
+			"constraints": {
+				"required": true
+			}
+		},
+		{
+			"name": "aafc_org",
+			"title": "Catalogue's Organization (Abbreviation)",
+            "description": "Organization id name / abbreviation in both official languages as noted on the catalogue (see open_canada_orgs_list.csv for full list and references). Field directly retrieved from the departmental open data catalogue.",
+            "example": "stb-dgst",
+            "type": "string",
+			"constraints": {
+				"required": false
+			}
+		},
+		{
+			"name": "aafc_org_title",
+			"title": "Catalogue's Organization (English Title)",
+            "description": "Organization unofficial common english name as noted on the catalogue (see open_canada_orgs_list.csv for full list and references). Field directly retrieved from the departmental open data catalogue.",
+            "example": "STB",
+            "type": "string",
+			"constraints": {
+				"required": false
+			}
+		},
+		{
+			"name": "maintainer_email",
+			"title": "Maintainer Email",
+            "description": "Maintainer's email address. Field directly retrieved from the open government platform.",
+            "example": "agri-geomatics-agrog@agr.gc.ca",
+            "type": "string",
+            "format": "email",
+            "rdfType": "https://schema.org/email",
+			"constraints": {
+				"required": true
+			}
+		},
+		{
 			"name": "maintainer_email",
 			"title": "Maintainer Email",
             "description": "Maintainer's email address. Field directly retrieved from the open government platform.",
@@ -197,7 +269,7 @@
             "format": "uri",
             "rdfType": "https://schema.org/url",
 			"constraints": {
-				"required": true
+				"required": false
 			}
 		},
 		{
@@ -209,7 +281,7 @@
             "format": "uri",
             "rdfType": "https://schema.org/url",
 			"constraints": {
-				"required": true
+				"required": false
 			}
 		}
 	],
