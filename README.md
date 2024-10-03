@@ -36,11 +36,14 @@ contains data originally used by the program to run properly. This data was late
     - **aafc_data_scanner_icon.ico**  
 application's icon
 
-- **test_files/** ... \
-sample I/O files for testing
-
-- **tests/** ... \
+- **tests/** \
 code files for testing (unit tests); to be run from project's main folder using `py -m unittest` (add `-v` for more verbose)
+    - **io/** ... \
+sample I/O files for testing
+    - ...
+
+- **AAFC Open Data.pbix** \
+Power BI report generating its visualizations from the exported CSVs in the **inventories/** folder.
 
 - **cli.py** \
 entry point to produce executable file
@@ -133,9 +136,9 @@ deactivate
 Now that the venv is set up locally on your repo, make sure **venv/** is in your **.gitignore** file.
 
 
-## How to use the code
+## Extra documentation for both Users & Developers
 
-> **TO BE COMPLETED**
+ See the [AAFC Data Scanner documentation](https://001gc.sharepoint.com/:w:/s/75731/Ee5Nb4ESXBhNn1KU_LrZZvkBz-WVjEy80uqnBFzSX1YJ-Q?e=Wok5wX) for extra information, for both users and developers.
 
 
 ## How to export as a single executable file

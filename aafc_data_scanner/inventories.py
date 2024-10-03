@@ -348,14 +348,10 @@ class Inventory:
                          .reset_index(drop=True)
                          .astype(DATASETS_DTYPES)
         )
-        # self.datasets.sort_values(by='id', inplace=True)
-        # self.datasets.reset_index(drop=True, inplace=True)
         self.resources = (self.resources
                           .sort_values(by='dataset_id')
                           .reset_index(drop=True)
         )
-        # self.resources.sort_values(by='dataset_id', inplace=True)
-        # self.resources.reset_index(drop=True, inplace=True)
         print(f'All information was collected.  ({end-start:.2f}s)')
 
 
@@ -412,45 +408,7 @@ class Inventory:
         print('Verifying specification / data dictionary compliance.')
         self.complete_spec()
         print("Inventories are ready.")
-
-
-    # def update_registry_info(self, registry: DataCatalogue, 
-    #                          id_list: Optional[List[str]] = None) -> NoReturn:
-    #     """Updates the registry info (on_registry, org, org_title, 
-    #     registry_link) of the datasets whose id is in the given list, along
-    #     with their associated resources.
-    #     """
-    #     if not id_list:
-    #         id_list = list(self.datasets.id)
-
-    #     def update_dataset_registry_info(row: pd.Series) -> pd.Series:
-    #         """Update for datasets, per row"""
-    #         try:
-    #             dataset = registry.get_dataset(row.id)
-    #             if row.id in id_list:
-    #                 row.on_registry = True
-    #                 row.org = dataset['organization']['name']
-    #                 row.org_title = re.sub(r'([^\|]+) \| ([^\|]+)', r'\1',
-    #                                     dataset['organization']['title'])
-    #                 row.registry_link = REGISTRY_DATASETS_BASE_URL.format(row.id)
-    #             return row
-    #         except:
-    #             pass
-
-    #     def update_resource_registry_info(row: pd.Series) -> pd.Series:
-    #         """Update for resources, per row"""
-    #         if row.dataset_id in id_list:
-    #             row.registry_link = (REGISTRY_RESOURCES_BASE_URL
-    #                                  .format(row.dataset_id, row.id))
-    #         return row
         
-    #     self.dataset = self.datasets.apply(aafcH3imd@ll
-
-    #         update_dataset_registry_info, axis=1)
-    #     self.resources = self.resources.apply(
-    #         update_resource_registry_info, axis=1)
-
-
     def update_platform_info(self, platform: str, dc: DataCatalogue,
                              id_list: Optional[List[str]] = None) -> NoReturn:
         """Updates the registry or catalogue info (platform passed in the 
@@ -490,10 +448,6 @@ class Inventory:
                 link = datasets_base_url.format(id)
                 self.datasets.loc[self.datasets.id == id, 
                                   cols_to_update] = True, org, org_title, link
-                # self.datasets.loc[self.dataset.id == id, cols_to_update[0]] = True
-                # self.datasets.loc[self.dataset.id == id, cols_to_update[1]] = org
-                # self.datasets.loc[self.dataset.id == id, cols_to_update[2]] = org_title
-                # self.datasets.loc[self.dataset.id == id, cols_to_update[3]] = link
                 
                 # update resources links
                 resources_IDs = [res['id'] for res in dataset['resources']]
@@ -506,65 +460,6 @@ class Inventory:
             finally:
                 pbar.update()
         
-
-        # def update_dataset_catalogue_info(row: pd.Series) -> pd.Series:
-        #     """Update for datasets, per row"""
-        #     dataset = catalogue.get_dataset(row.id)
-        #     if row.id in id_list:
-        #         row.on_catalogue = True
-        #         row.aafc_org = dataset['organization']['name']
-        #         row.aafc_org_title = re.sub(r'([^\|]+) \| ([^\|]+)', r'\1',
-        #                                     dataset['organization']['title'])
-        #         row.catalogue_link = (CATALOGUE_DATASETS_BASE_URL
-        #                               .format(row.id))
-        #     return row
-
-        # def update_resource_catalogue_info(row: pd.Series) -> pd.Series:
-        #     """Update for resources, per row"""
-        #     if row.dataset_id in id_list:
-        #         row.registry_link = (CATALOGUE_RESOURCES_BASE_URL
-        #                              .format(row.dataset_id, row.id))
-        #     return row
-        
-        # self.dataset = self.datasets.apply(
-        #     update_dataset_catalogue_info, axis=1)
-        # self.resources = self.resources.apply(
-        #     update_resource_catalogue_info, axis=1)
-
-
-    # def update_catalogue_info(self, catalogue: DataCatalogue,
-    #                           id_list: Optional[List[str]] = None) -> NoReturn:
-    #     """Updates the catalogue info (on_catalogue, aafc_org, aafc_org_title, 
-    #     catalogue_link) of the datasets whose id is in the given list, along
-    #     with their associated resources.
-    #     """
-    #     if not id_list:
-    #         id_list = list(self.datasets.id)
-
-    #     def update_dataset_catalogue_info(row: pd.Series) -> pd.Series:
-    #         """Update for datasets, per row"""
-    #         dataset = catalogue.get_dataset(row.id)
-    #         if row.id in id_list:
-    #             row.on_catalogue = True
-    #             row.aafc_org = dataset['organization']['name']
-    #             row.aafc_org_title = re.sub(r'([^\|]+) \| ([^\|]+)', r'\1',
-    #                                         dataset['organization']['title'])
-    #             row.catalogue_link = (CATALOGUE_DATASETS_BASE_URL
-    #                                   .format(row.id))
-    #         return row
-
-    #     def update_resource_catalogue_info(row: pd.Series) -> pd.Series:
-    #         """Update for resources, per row"""
-    #         if row.dataset_id in id_list:
-    #             row.registry_link = (CATALOGUE_RESOURCES_BASE_URL
-    #                                  .format(row.dataset_id, row.id))
-    #         return row
-        
-    #     self.dataset = self.datasets.apply(
-    #         update_dataset_catalogue_info, axis=1)
-    #     self.resources = self.resources.apply(
-    #         update_resource_catalogue_info, axis=1)
-
 
     def export_datasets(self, path: str = './', filename: str = '') -> NoReturn:
         """Exports self datasets dataframe as a csv file at the given path, if
@@ -593,7 +488,7 @@ class Inventory:
         check_and_create_path(path)
         if filename == '':
             timestamp: str = dt.datetime.now().strftime("%Y-%m-%d_%H%M%S")
-            filename = f'{df_name}_inventory_{timestamp}.csv'
+            filename = f'{timestamp}_{df_name}_inventory.csv'
         full_path: str = path + filename
         msg: str
         init()

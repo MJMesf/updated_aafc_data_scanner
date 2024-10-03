@@ -45,7 +45,7 @@ class TestDataCatalogue(unittest.TestCase):
         inventory = Inventory()
         registry = RequestsDataCatalogue(REGISTRY_BASE_URL)
         lock = threading.Lock()
-        test_datasets = pd.read_csv('./test_files/datasets.csv', 
+        test_datasets = pd.read_csv('tests/io/datasets.csv', 
                                     encoding='utf-8-sig')
         
         for i in range(len(test_datasets)):
@@ -61,7 +61,7 @@ class TestDataCatalogue(unittest.TestCase):
         session = TenaciousSession()
         registry = RequestsDataCatalogue(REGISTRY_BASE_URL, session)
         lock = threading.Lock()
-        test_resources = pd.read_csv('test_files/resources.csv', 
+        test_resources = pd.read_csv('tests/io/resources.csv', 
                                      encoding='utf-8-sig')
 
         for i in range(len(test_resources)):
@@ -77,9 +77,9 @@ class TestDataCatalogue(unittest.TestCase):
 
     def test_get_modified(self):
 
-        datasets = pd.read_csv('test_files/datasets_modified.csv', 
+        datasets = pd.read_csv('tests/io/datasets_modified.csv', 
                                encoding='utf-8-sig')
-        resources = pd.read_csv('test_files/resources_modified.csv', 
+        resources = pd.read_csv('tests/io/resources_modified.csv', 
                                 encoding='utf-8-sig')
 
         for _, dataset in datasets.iterrows():
@@ -94,7 +94,7 @@ class TestDataCatalogue(unittest.TestCase):
 
     def test_get_up_to_date(self):
 
-        datasets = pd.read_csv('test_files/datasets_up_to_date.csv', 
+        datasets = pd.read_csv('tests/io/datasets_up_to_date.csv', 
                                encoding='utf-8-sig')
 
         for _, dataset in datasets.iterrows():
@@ -114,9 +114,9 @@ class TestDataCatalogue(unittest.TestCase):
     
     def test_get_official_lang(self):
 
-        datasets = pd.read_csv('test_files/datasets_official_lang.csv', 
+        datasets = pd.read_csv('tests/io/datasets_official_lang.csv', 
                                encoding='utf-8-sig')
-        resources = pd.read_csv('test_files/resources_official_lang.csv', 
+        resources = pd.read_csv('tests/io/resources_official_lang.csv', 
                                 encoding='utf-8-sig')
         
         for _, dataset in datasets.iterrows():
@@ -131,9 +131,9 @@ class TestDataCatalogue(unittest.TestCase):
     
     def test_get_open_formats(self):
 
-        datasets = pd.read_csv('test_files/datasets_open_formats.csv', 
+        datasets = pd.read_csv('tests/io/datasets_open_formats.csv', 
                                encoding='utf-8-sig')
-        resources = pd.read_csv('test_files/resources_open_formats.csv', 
+        resources = pd.read_csv('tests/io/resources_open_formats.csv', 
                                 encoding='utf-8-sig')
         
         for _, dataset in datasets.iterrows():
@@ -148,9 +148,9 @@ class TestDataCatalogue(unittest.TestCase):
 
     def test_get_spec(self):
 
-        datasets = pd.read_csv('test_files/datasets_spec.csv', 
+        datasets = pd.read_csv('tests/io/datasets_spec.csv', 
                                encoding='utf-8-sig')
-        resources = pd.read_csv('test_files/resources_spec.csv', 
+        resources = pd.read_csv('tests/io/resources_spec.csv', 
                                 encoding='utf-8-sig')
         
         for _, dataset in datasets.iterrows():
@@ -165,9 +165,9 @@ class TestDataCatalogue(unittest.TestCase):
 
     def test_complete_modified(self):
         
-        datasets = pd.read_csv('test_files/datasets_modified.csv', 
+        datasets = pd.read_csv('tests/io/datasets_modified.csv', 
                                encoding='utf-8-sig')
-        resources = pd.read_csv('test_files/resources_modified.csv', 
+        resources = pd.read_csv('tests/io/resources_modified.csv', 
                                 encoding='utf-8-sig')
 
         pd.options.mode.chained_assignment = None 
@@ -185,7 +185,7 @@ class TestDataCatalogue(unittest.TestCase):
 
     def test_complete_up_to_date(self):
         
-        datasets = pd.read_csv('test_files/datasets_up_to_date.csv', 
+        datasets = pd.read_csv('tests/io/datasets_up_to_date.csv', 
                                encoding='utf-8-sig')
 
         pd.options.mode.chained_assignment = None 
@@ -205,9 +205,9 @@ class TestDataCatalogue(unittest.TestCase):
 
     def test_complete_official_lang(self):
 
-        datasets = pd.read_csv('test_files/datasets_official_lang.csv', 
+        datasets = pd.read_csv('tests/io/datasets_official_lang.csv', 
                                encoding='utf-8-sig')
-        resources = pd.read_csv('test_files/resources_official_lang.csv', 
+        resources = pd.read_csv('tests/io/resources_official_lang.csv', 
                                 encoding='utf-8-sig')
 
         pd.options.mode.chained_assignment = None 
@@ -225,9 +225,9 @@ class TestDataCatalogue(unittest.TestCase):
     
     def test_complete_open_formats(self):
         
-        datasets = pd.read_csv('test_files/datasets_open_formats.csv', 
+        datasets = pd.read_csv('tests/io/datasets_open_formats.csv', 
                                encoding='utf-8-sig')
-        resources = pd.read_csv('test_files/resources_open_formats.csv', 
+        resources = pd.read_csv('tests/io/resources_open_formats.csv', 
                                 encoding='utf-8-sig')
 
         pd.options.mode.chained_assignment = None 
@@ -245,9 +245,9 @@ class TestDataCatalogue(unittest.TestCase):
     
     def test_complete_spec(self):
         
-        datasets = pd.read_csv('test_files/datasets_spec.csv', 
+        datasets = pd.read_csv('tests/io/datasets_spec.csv', 
                                encoding='utf-8-sig')
-        resources = pd.read_csv('test_files/resources_spec.csv', 
+        resources = pd.read_csv('tests/io/resources_spec.csv', 
                                 encoding='utf-8-sig')
 
         pd.options.mode.chained_assignment = None 
@@ -270,9 +270,9 @@ class TestDataCatalogue(unittest.TestCase):
         dc = RequestsDataCatalogue(REGISTRY_BASE_URL)
         datasets_lock = threading.Lock()
         resources_IDs_lock = threading.Lock()
-        datasets = pd.read_csv('./test_files/datasets.csv', 
+        datasets = pd.read_csv('tests/io/datasets.csv', 
                                encoding='utf-8-sig')
-        resources = pd.read_csv('test_files/resources.csv',
+        resources = pd.read_csv('tests/io/resources.csv',
                                 encoding='utf-8-sig')
 
         for i in range(len(datasets)):
@@ -283,6 +283,9 @@ class TestDataCatalogue(unittest.TestCase):
                                         datasets)
         self.assert_and_see_differences(inventory.resources, 
                                         resources)
+        
+    def test_update_platform_info(self):
+        pass            # TODO
 
     # there is no test_inventory
     # no way to plan the whole expected output other than by the code itself
