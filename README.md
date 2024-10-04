@@ -45,6 +45,9 @@ sample I/O files for testing
 - **AAFC Open Data.pbix** \
 Power BI report generating its visualizations from the exported CSVs in the **inventories/** folder.
 
+- **LICENSE** \
+MIT open-source license for use of this code.
+
 - **cli.py** \
 entry point to produce executable file
 
