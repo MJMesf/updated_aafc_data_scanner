@@ -1,10 +1,8 @@
 """Contains Inventory class."""
 
-from colorama import Fore, init
 import concurrent.futures
 from dataclasses import dataclass, field
 import datetime as dt
-import pandas as pd
 import re
 import threading
 import time
@@ -14,10 +12,13 @@ import urllib3
 import validators
 import warnings
 
-from .constants import *
-from .data import *
-from .tools import *
-from .helper_functions import *
+import pandas as pd
+from colorama import Fore, init
+
+from .constants import * # pylint: disable=import-error
+from .data import ISO639_MAP, FORMATS
+from .tools import TenaciousSession, DataCatalogue, DriverDataCatalogue
+from .helper_functions import * # pylint: disable=import-error
 
 @dataclass
 class Inventory:
@@ -41,7 +42,7 @@ class Inventory:
 
     @staticmethod
     def add_dataset(dataset: dict, datasets: pd.DataFrame,
-                lock: threading.Lock, 
+                lock: threading.Lock,
                 from_catalogue: bool = False) -> NoReturn:
         """Adds the given dataset's information to the datasets dataframe.
         The lock argument is a mutex on the datasets dataframe."""
@@ -57,7 +58,7 @@ class Inventory:
             record['metadata_created'] = dataset['metadata_created']
             record['metadata_modified'] = dataset['metadata_modified']
             record['num_resources'] = dataset['num_resources']
-            
+
             # metadata specific to each platform
             org = dataset['organization']['name']
             org_title = re.sub(
@@ -69,8 +70,8 @@ class Inventory:
                 record['aafc_org_title'] = org_title
                 record['catalogue_link'] = CATALOGUE_DATASETS_BASE_URL.format(
                     record['id'])
-                record['harvested'] = (dataset['aafc_is_harvested'] == 'true')
-                record['internal'] = (dataset['publication'] == 'internal')
+                record['harvested'] = dataset['aafc_is_harvested'] == 'true'
+                record['internal'] = dataset['publication'] == 'internal'
             else:
                 record['on_registry'] = True
                 record['org'] = org
@@ -79,36 +80,36 @@ class Inventory:
                     record['id'])
                 record['harvested'] = False
                 record['internal'] = False
-            
+
             # inconsistent metadata fields
 
-            if dataset['maintainer_email'] != None:
+            if dataset['maintainer_email'] is not None:
                 record['maintainer_email'] = dataset['maintainer_email'].lower()
             elif 'data_steward_email' in dataset.keys() and \
-                    dataset['data_steward_email'] != None:
+                    dataset['data_steward_email'] is not None:
                 record['maintainer_email'] = dataset['data_steward_email'].lower()
             elif 'author_email' in dataset.keys() and \
-                    dataset['author_email'] != None:
+                    dataset['author_email'] is not None:
                 record['maintainer_email'] = dataset['author_email'].lower()
             else:
                 record['maintainer_email'] = None
             record['maintainer_name'] = infer_name_from_email(
                 record['maintainer_email'])
-            
+
             try:
                 record['collection'] = dataset['collection']
-            except:
+            except KeyError:
                 record['collection'] = None
-            
+
             record['frequency'] = dataset['frequency']
             if not isinstance(record['frequency'], str):
                 print(f'Error for id {record['id']}:',
                       f'frequency is {record['frequency']} (not str)')
-            
+
             # 'modified', 'up_to_date', 'official_lang', 'open_formats' and 'spec' 
             # will be added to the record later on
 
-        except Exception as e:
+        except Exception as e: # pylint: disable=bare-except
             print(f'!!! An exception occurred in add_dataset:\n{e}')
 
         lock.acquire()
@@ -134,14 +135,14 @@ class Inventory:
             record['url'] = resource['url']
             record['https'] = str(resource['url']).startswith('https') or \
                 str(resource['url']).startswith('file')
-            
+
             # checking url state
-            if (validators.url(record['url'])):
+            if validators.url(record['url']):
                 urllib3.disable_warnings(
                     urllib3.exceptions.InsecureRequestWarning
                 )
                 record['url_status'] = TenaciousSession(
-                    skip_SSL=True
+                    skip_ssl=True
                 ).get_status_code(resource['url'])
             else:
                 # not a url (most likely an internal file path)
@@ -159,7 +160,7 @@ class Inventory:
             else:
                 record['registry_link'] = REGISTRY_RESOURCES_BASE_URL.format(
                     record['dataset_id'], record['id'])
-            
+
             # inconsistent metadata fields
             if 'metadata_modified' in resource.keys():
                 record['metadata_modified'] = resource['metadata_modified']   
@@ -167,8 +168,8 @@ class Inventory:
                 record['title_fr'] = resource['name_translated']['fr']   
             elif 'fr-t-en' in resource['name_translated'].keys():
                 record['title_fr'] = resource['name_translated']['fr-t-en'] 
-        
-        except Exception as e:
+
+        except Exception as e: # pylint: disable=bare-except
             print(f'!!! An exception occurred in add_resource:\n{e}')
 
         lock.acquire()
@@ -218,14 +219,14 @@ class Inventory:
         else:
             # no update explicitly planned
             return True
-        
+
         # Getting last modified date, based on resources
         last_modified = dt.datetime.fromisoformat(ds.modified)
         if last_modified >= oldest_valid_update:
             return True
         else:
             return False
-    
+
     @staticmethod
     def get_official_lang(ds: pd.Series, all_resources: pd.DataFrame) -> bool:
         """Returns True if dataset ds is compliant with official languages 
@@ -241,7 +242,7 @@ class Inventory:
             if 'fra' in res.lang:
                 num_fra += 1
         return num_eng == num_fra
-    
+
     @staticmethod
     def get_open_formats(ds: pd.Series, all_resources: pd.DataFrame) -> bool:
         """Returns True if dataset ds is compliant with open formats 
@@ -309,8 +310,8 @@ class Inventory:
         if pbar:
             pbar.update()
 
-    def inventory(self, dc: DataCatalogue, 
-                  datasets_IDs: Optional[List[str]] = []) -> NoReturn:
+    def inventory(self, dc: DataCatalogue,
+                  datasets_ids: Optional[List[str]] = None) -> NoReturn:
         """Fetches information of all datasets and resources of the given 
         DataCatalogue dc and stores it in self datasets and resources 
         dataframes, in parallel.
@@ -320,24 +321,24 @@ class Inventory:
         print('Collecting information of all datasets ...')
         start = time.time() # times datasets collection
 
-        if not datasets_IDs:
+        if not datasets_ids:
             # listing all the datasets IDs:
-            datasets_IDs = dc.search_datasets(owner_org=AAFC_ORG_ID)
+            datasets_ids = dc.search_datasets(owner_org=AAFC_ORG_ID)
         # initializing the progress bar
-        pbar = tqdm(desc='Processed Datasets', total=len(datasets_IDs), 
-                    colour='green', ncols=100, ascii=' -=') 
+        pbar = tqdm(desc='Processed Datasets', total=len(datasets_ids),
+                    colour='green', ncols=100, ascii=' -=')
 
-        # in parallel threads, collects relevant information of 
+        # in parallel threads, collects relevant information of
         # each dataset and associated resources
         datasets_lock = threading.Lock()
-        resources_IDs_lock = threading.Lock()
+        resources_ids_lock = threading.Lock()
         driver_lock = None
         if isinstance(dc, DriverDataCatalogue):
             driver_lock = threading.Lock()
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            for id in datasets_IDs:
+            for id in datasets_ids:
                 executor.submit(self._collect_dataset_with_resources, dc, id, 
-                                datasets_lock, resources_IDs_lock, 
+                                datasets_lock, resources_ids_lock, 
                                 driver_lock, pbar)
             executor.shutdown(wait=True)
         pbar.close()
@@ -367,7 +368,7 @@ class Inventory:
         self.datasets.up_to_date = self.datasets.apply(
             lambda ds: Inventory.get_up_to_date(ds, now), axis=1
         )
-    
+
     def complete_official_lang(self) -> NoReturn:
         """Completes 'official_lang' column of the datasets table."""
         self.datasets.official_lang = self.datasets.apply(
@@ -408,7 +409,7 @@ class Inventory:
         print('Verifying specification / data dictionary compliance.')
         self.complete_spec()
         print("Inventories are ready.")
-        
+
     def update_platform_info(self, platform: str, dc: DataCatalogue,
                              id_list: Optional[List[str]] = None) -> NoReturn:
         """Updates the registry or catalogue info (platform passed in the 
@@ -418,10 +419,10 @@ class Inventory:
         """
         if not id_list:
             id_list = list(self.datasets.id)
-        
+
         pbar = tqdm(desc='Processed Datasets', total=len(id_list), 
                     colour='green', ncols=100, ascii=' -=') 
-        
+
         match platform:
             case 'registry':
                 cols_to_update = ['on_registry', 'org', 
@@ -448,18 +449,18 @@ class Inventory:
                 link = datasets_base_url.format(id)
                 self.datasets.loc[self.datasets.id == id, 
                                   cols_to_update] = True, org, org_title, link
-                
+
                 # update resources links
-                resources_IDs = [res['id'] for res in dataset['resources']]
+                resources_ids = [res['id'] for res in dataset['resources']]
                 self.resources[cols_to_update[-1]] = self.resources.apply(
                     lambda row: (resources_base_url
-                                 .format(id, row.id) if row.id in resources_IDs 
+                                 .format(id, row.id) if row.id in resources_ids # pylint: disable=cell-var-from-loop
                                  else row.catalogue_link), axis=1)
-            except:
+            except: # pylint: disable=bare-except
                 pass
             finally:
                 pbar.update()
-        
+
 
     def export_datasets(self, path: str = './', filename: str = '') -> NoReturn:
         """Exports self datasets dataframe as a csv file at the given path, if
@@ -494,7 +495,7 @@ class Inventory:
         init()
         try:
             df.to_csv(full_path, index=False, encoding='utf_8_sig')
-        except Exception as e:
+        except Exception as e: # pylint: disable=bare-except
             msg = f'Error exporting {df_name} inventory to {filename}:\n{e}\n'
             print(Fore.RED + msg + Fore.RESET)
         else:

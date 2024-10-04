@@ -1,3 +1,5 @@
+"""Helper functions for other modules."""
+
 import calendar
 import datetime as dt
 import os
@@ -19,7 +21,7 @@ def check_and_create_path(path: str) -> None:
     for i in range(2, len(path_pieces)):
         subpath = '/'.join(path_pieces[:i])
         if not os.path.isdir(subpath):
-                os.mkdir(subpath)
+            os.mkdir(subpath)
 
 
 def date_ago(n: float, unit: str, 
@@ -80,8 +82,8 @@ def infer_name_from_email(email: str) -> str:
     """
 
     def upper_after_mac(m: re.Match) -> str:
-            return m.group(1) + m.group(2).upper()
-    
+        return m.group(1) + m.group(2).upper()
+
     if email and email != '':
         name: str = ' '.join(re.split(r'[.\-_]', 
                              email.split('@')[0].lower())).title()

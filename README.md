@@ -149,3 +149,5 @@ You can then enter:
 ```powershell
 pyinstaller --onefile -n "aafc_data_scanner" -i .\icons\aafc_data_scanner_icon.ico .\cli.py
 ```
+
+The excutable file will be placed in a newly-created **dist** folder.
