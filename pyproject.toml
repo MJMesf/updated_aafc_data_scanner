@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "aafc_data_scanner"
-version = "0.1.2"
+version = "1.0.0"
 description = ""
 authors = ["a-taillardat <alexis.taillardat@outlook.com>"]
 readme = "README.md"
