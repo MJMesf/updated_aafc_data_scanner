@@ -425,7 +425,7 @@ class Inventory:
 
         match platform:
             case 'registry':
-                cols_to_update = ['on_registry', 'org', 
+                cols_to_update = ['on_registry', 'org',
                                   'org_title', 'registry_link']
                 datasets_base_url = REGISTRY_DATASETS_BASE_URL
                 resources_base_url = REGISTRY_RESOURCES_BASE_URL
