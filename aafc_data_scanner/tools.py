@@ -160,35 +160,14 @@ class DriverDataCatalogue(DataCatalogue):
 
     # overrides DataCatalogue's abstract method
     def request_ckan(self, url: str) -> Any:
-    """Sends a CKAN API web request with a given URL and returns the content 
-    of the result.
-    """
-    self.driver.get(url)
-    self.driver.get(url)  # Called twice because automatic authentication removes params on first try
-
-    page_source = self.driver.page_source
-
-    # Debugging: Print/log page source for analysis if structure is unexpected
-    if '<div hidden="true">' not in page_source:
-        print(f"DEBUG: Full page source at line 166: {page_source}")
-    else:
-        print(f"DEBUG: page_source (first 500 chars): {page_source[:500]}")
-
-    # Extracting JSON content from full page
-    split_page = re.split(r'\<div hidden="true"\>', page_source)
-    if len(split_page) < 2:
-        raise ValueError(f"Unexpected page structure at line 166: {split_page}")
-
-    subpage = split_page[1]
-    json_page = re.split(r'\</div\>', subpage)[0]
-
-    # Parse JSON response and validate its structure
-    try:
+        self.driver.get(url)
+        self.driver.get(url)
+        # twice because automatic authentication removes params on firsty try
+        page_source = self.driver.page_source
+        # extracting json content from full page
+        subpage = re.split(r'\<div hidden="true"\>', page_source)[1]
+        json_page = re.split(r'\</div\>', subpage)[0]
         data = json.loads(json_page)
-    except json.JSONDecodeError as e:
-        raise ValueError(f"JSON decoding error at line 166: {str(e)}\nJSON Content: {json_page}")
-
-    assert data['success'], 'CKAN API Error: request\'s success is False'
-    
-    return data['result']
-
+        assert data['success'], \
+            'CKAN API Error: request\'s success is False'
+        return data['result']
