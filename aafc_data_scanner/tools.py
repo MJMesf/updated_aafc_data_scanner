@@ -8,6 +8,8 @@ from dataclasses import dataclass, field
 import json
 import re
 import requests
+import os
+import tempfile
 from requests.adapters import HTTPAdapter, Retry
 from selenium.webdriver import Edge
 from selenium.webdriver import EdgeOptions
@@ -151,11 +153,20 @@ class DriverDataCatalogue(DataCatalogue):
     def __init__(self, base_url):
         self.base_url = base_url
         options = EdgeOptions()
+
+        #unique directory to avoid multiple Edge instance issue
+        profile_dir = tempfile.mkdtemp(prefix="EdgeProfileUnique_")
+
+
         # headless no longer working; to be fixed
-        options.add_argument("headless")
+        #options.add_argument("headless")
         options.add_argument("disable-gpu")
         options.add_experimental_option('excludeSwitches', ['enable-logging'])
         options.add_argument("--log-level=3")
+
+        #create unique path so Edge has no other instances
+        options.add_argument(f"--user-data-dir={profile_dir}")
+
         self.driver = Edge(options=options)
 
     # overrides DataCatalogue's abstract method
@@ -171,3 +182,4 @@ class DriverDataCatalogue(DataCatalogue):
         assert data['success'], \
             'CKAN API Error: request\'s success is False'
         return data['result']
+
