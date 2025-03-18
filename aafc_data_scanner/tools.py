@@ -167,7 +167,7 @@ class DriverDataCatalogue(DataCatalogue):
         #create unique path so Edge has no other instances
         options.add_argument(f"--user-data-dir={profile_dir}")
 
-        self.driver = Edge(options=options)
+        self.driver = Edge(options=options, executable_path=r"C:\Users\mesfinmj\Downloads\edgedriver_win64\msedgedriver.exe")
 
     # overrides DataCatalogue's abstract method
     def request_ckan(self, url: str) -> Any:
