@@ -1,11 +1,11 @@
 
-# AAFC Data Scanner
+# AAFC Data Scanner 2025
 
 <img src="icons/aafc_data_scanner_icon.ico" alt="AAFC Data Scanner Icon" width="100"/>
 
 ## Description
 
-This code is made to scan [AAFC](https://agriculture.canada.ca/en)'s open data information on Canada's [Open Government Portal](https://search.open.canada.ca/opendata/) and the departmental [AAFC Open Data Catalogue](https://data-catalogue-donnees.agr.gc.ca/dataset/), to provide the user with a complete inventory of datasets and resources. The repository also includes a Power BI report that fetches the generated data to provide visualizations and statistics about all the published data.
+This updated code is made to scan [AAFC](https://agriculture.canada.ca/en)'s open data information on Canada's [Open Government Portal](https://search.open.canada.ca/opendata/) and the departmental [AAFC Open Data Catalogue](https://data-catalogue-donnees.agr.gc.ca/dataset/), to provide the user with a complete inventory of datasets and resources. The repository also includes a Power BI report that fetches the generated data to provide visualizations and statistics about all the published data.
 
 
 ## Content
