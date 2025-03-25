@@ -2,7 +2,7 @@
 departmental AAFC Open Data Catalogue in a further version), to provide the 
 user with a complete inventory of datasets and resources in csv files.
 """
-import logging
+
 import atexit
 from typing import List, NoReturn
 import warnings
@@ -11,6 +11,8 @@ from colorama import Fore
 from .constants import REGISTRY_BASE_URL, CATALOGUE_BASE_URL, AAFC_ORG_ID
 from .tools import RequestsDataCatalogue, DriverDataCatalogue
 from .inventories import Inventory
+
+
 
 
 warnings.filterwarnings('ignore', category=FutureWarning)
@@ -32,13 +34,6 @@ def display_exit_message() -> NoReturn:
 def main() -> NoReturn:
     """Main code."""
 
-    logging.basicConfig(
-        filename="aafc_data_scanner.log",
-        level=logging.DEBUG,  
-        format="%(asctime)s - %(levelname)s - %(message)s"
-    )
-    logging.info("Application started.")
-
     print()
     print(Fore.YELLOW + '\tAAFC Data Scanner' + Fore.RESET)
 
@@ -59,26 +54,25 @@ def main() -> NoReturn:
     print('\nCommencing scan.')
     inventory = Inventory()
 
-    logging.info("Commencing scan.")
-
     # PHASE 1: Inventorying the whole registry
 
     registry = RequestsDataCatalogue(REGISTRY_BASE_URL)
     registry_datasets: List[str] = registry.search_datasets(
         owner_org=AAFC_ORG_ID)
     print(Fore.GREEN)
-    print(f'{len(registry_datasets)} datasets were found on the registry.' +\
-           Fore.RESET)
+    print(f'{len(registry_datasets)} datasets were found on the registry.' + Fore.RESET)
     inventory.inventory(registry, registry_datasets)
+    print(Fore.MAGENTA)
+    print("\nCompleted Scan of Registry\n")
+    print(Fore.RESET)
 
     if must_scan_catalogue:
-        logging.info("Inventorying registry datasets...")
-        # PHASE 2: Adding datasets from the catalogue
 
+        # PHASE 2: Adding datasets from the catalogue
+        print("\nScanning Data Catalogue\n")
         # Listing datasets on catalogue
         catalogue = DriverDataCatalogue(CATALOGUE_BASE_URL)
         catalogue_datasets: List[str] = catalogue.list_datasets()
-
         to_parse: List[str] = [id for id in catalogue_datasets
                                if id not in registry_datasets]
         already_parsed : List[str] = [id for id in catalogue_datasets
@@ -140,16 +134,5 @@ def main() -> NoReturn:
                                filename='_latest_resources_inventory.csv')
 
 
-def main_with_debug():
-    try:
-        logging.info("Starting AAFC Data Scanner main process.")
-        main()  # your original main function
-        logging.info("Main process completed successfully.")
-    except Exception as e:
-        logging.exception("An error occurred in the main process:")
-        raise
-
-
-
 if __name__ == '__main__':
-    main_with_debug()
+    main()
