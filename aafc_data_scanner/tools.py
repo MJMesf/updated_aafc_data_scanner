@@ -10,9 +10,12 @@ import re
 import requests
 import os
 import tempfile
+import time
 from requests.adapters import HTTPAdapter, Retry
 from selenium.webdriver import Edge
 from selenium.webdriver import EdgeOptions
+
+
 
 
 @dataclass
@@ -157,9 +160,7 @@ class DriverDataCatalogue(DataCatalogue):
         #unique directory to avoid multiple Edge instance issue
         profile_dir = tempfile.mkdtemp(prefix="EdgeProfileUnique_")
 
-
-        # headless no longer working; to be fixed
-        #options.add_argument("headless")
+        options.add_argument("headless")
         options.add_argument("disable-gpu")
         options.add_experimental_option('excludeSwitches', ['enable-logging'])
         options.add_argument("--log-level=3")
@@ -167,19 +168,27 @@ class DriverDataCatalogue(DataCatalogue):
         #create unique path so Edge has no other instances
         options.add_argument(f"--user-data-dir={profile_dir}")
 
-        self.driver = Edge(options=options, executable_path=r"C:\Users\mesfinmj\Downloads\edgedriver_win64\msedgedriver.exe")
+        self.driver = Edge(options=options)
 
     # overrides DataCatalogue's abstract method
     def request_ckan(self, url: str) -> Any:
         self.driver.get(url)
         self.driver.get(url)
-        # twice because automatic authentication removes params on firsty try
         page_source = self.driver.page_source
-        # extracting json content from full page
-        subpage = re.split(r'\<div hidden="true"\>', page_source)[1]
-        json_page = re.split(r'\</div\>', subpage)[0]
-        data = json.loads(json_page)
-        assert data['success'], \
-            'CKAN API Error: request\'s success is False'
-        return data['result']
+      
+        try:
+            data = json.loads(page_source)
+            assert data.get('success') is True, "CKAN API Error: 'success' is False"
+            return data['result']
+        
+        except json.JSONDecodeError:
+        # fallback for possibly the page_source has extra HTML
+            match = re.search(r'(\{.*\})', page_source, re.DOTALL)
 
+            if match:
+                data = json.loads(match.group(1))
+                assert data.get('success') is True, "CKAN API Error: 'success' is False"
+                return data['result']
+            
+            else:
+                raise Exception("No valid JSON found in page source.")
