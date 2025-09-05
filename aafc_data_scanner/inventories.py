@@ -181,20 +181,64 @@ class Inventory:
         """Infers last date modified of the dataset ds, given the created 
         and modified_metadata dates of its resources.
         """
-        last_modified: dt.datetime
-        resources = all_resources[all_resources.dataset_id == ds.id]
-        modified: dt.datetime
+        
+        key = "dataset_id" if "dataset_id" in all_resources.columns else (
+            "package_id" if "package_id" in all_resources.columns else None)
+        if key is None:
+           
+            return None
+
+        ds_id = getattr(ds, "id", None) or ds.get("id", None)
+        if ds_id is None:
+            return None
+
+        resources = all_resources[all_resources[key] == ds_id]
+        if resources.empty:
+            return None
+
+        def parse_any(val) -> Optional[dt.datetime]:
+            """Return naive datetime or None."""
+            if val is None:
+                return None
+            s = str(val).strip()
+            if not s:
+                return None
+            
+            ts = pd.to_datetime(s, errors="coerce", utc=True)
+            if pd.isna(ts):
+                
+                try:
+                    return dt.datetime.fromisoformat(s)
+                except Exception:
+                    return None
+            
+            try:
+                return ts.tz_convert(None).to_pydatetime()
+            except Exception:
+                try:
+                    return ts.tz_localize(None).to_pydatetime()
+                except Exception:
+                    return ts.to_pydatetime() if hasattr(ts, "to_pydatetime") else ts
+
         modified_dates: List[dt.datetime] = []
+
+       
         for _, res in resources.iterrows():
-            created = dt.datetime.fromisoformat(res.created)
-            modified = created
-            if pd.notnull(res.metadata_modified):
-                metadata_modified = dt.datetime.fromisoformat(
-                    res.metadata_modified)
-                modified = max(created, metadata_modified)
-            modified_dates.append(modified)
-        last_modified = max(modified_dates) # latest date
+            created_dt = parse_any(res.get("created"))
+            meta_dt    = parse_any(res.get("metadata_modified"))
+            pair = [d for d in (created_dt, meta_dt) if d is not None]
+            if pair:
+                modified_dates.append(max(pair))
+
+        
+        if not modified_dates:
+            return None
+
+        last_modified = max(modified_dates)
         return last_modified.isoformat()
+    
+
+
 
     @staticmethod
     def get_up_to_date(ds: pd.Series,
@@ -205,7 +249,8 @@ class Inventory:
         are stored in formats as P1D, P3W, P6M, P1Y, etc.)
         """
         # returning True (up to date) if the dataset is harvested
-        if ds.harvested:
+        val = ds.get("harvested", False) 
+        if pd.notna(val) and bool(val):
             return True
         # computing oldest date considered as valid to be up to date
         frequency: str = ds.frequency
@@ -503,3 +548,21 @@ class Inventory:
                 df_name.capitalize()
             } inventory was successfully exported to {filename}.'
             print(Fore.GREEN + msg + Fore.RESET)
+
+
+def as_bool(x, default=False):
+    """Convert pandas NA/None/strings/ints to a plain bool."""
+    if pd.isna(x):
+        return default
+    if isinstance(x, str):
+        s = x.strip().lower()
+        if s in ("true", "t", "yes", "y", "1"):
+            return True
+        if s in ("false", "f", "no", "n", "0", ""):
+            return False
+        # fall through to Python truthiness
+    try:
+        # handles 0/1, numpy ints, etc.
+        return bool(int(x))
+    except Exception:
+        return bool(x)

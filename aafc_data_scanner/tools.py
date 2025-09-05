@@ -14,8 +14,9 @@ import time
 from requests.adapters import HTTPAdapter, Retry
 from selenium.webdriver import Edge
 from selenium.webdriver import EdgeOptions
-
-
+from selenium.webdriver.edge.service import Service
+from pathlib import Path
+from shutil import which
 
 
 @dataclass
@@ -165,10 +166,26 @@ class DriverDataCatalogue(DataCatalogue):
         options.add_experimental_option('excludeSwitches', ['enable-logging'])
         options.add_argument("--log-level=3")
 
+        from shutil import which
+        service = None
+
+        driver_path = os.getenv("EDGE_DRIVER_PATH")
+        if driver_path and Path(driver_path).exists():
+            service = Service(driver_path)
+
+        else:
+            from shutil import which
+            exe = which("msedgedriver")
+            if exe:
+                service = Service(exe)
+            else:
+                # last resort: webdriver_manager (needs internet)
+                from webdriver_manager.microsoft import EdgeChromiumDriverManager
+                service = Service(EdgeChromiumDriverManager().install())
+
         #create unique path so Edge has no other instances
         options.add_argument(f"--user-data-dir={profile_dir}")
-
-        self.driver = Edge(options=options)
+        self.driver = Edge(service=service,options=options)
 
     # overrides DataCatalogue's abstract method
     def request_ckan(self, url: str) -> Any:

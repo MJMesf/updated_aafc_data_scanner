@@ -39,8 +39,7 @@ def main() -> NoReturn:
 
     # prompts user for catalogue's check
     must_scan_catalogue = False
-    print('\nReady to scan information from open.canada.ca registry.')
-    print('Do you also wish to scan AAFC Open Data Catalogue?')
+    print('Do you wish to scan AAFC Open Data Catalogue?')
     print(Fore.CYAN + 'Enter y for yes:' + Fore.RESET, end=" ")
     response = str(input())
     if response.lower() == 'y':
@@ -54,7 +53,10 @@ def main() -> NoReturn:
     print('\nCommencing scan.')
     inventory = Inventory()
 
-    # PHASE 1: Inventorying the whole registry
+
+
+
+        # PHASE 1: Inventorying the whole registry
 
     registry = RequestsDataCatalogue(REGISTRY_BASE_URL)
     registry_datasets: List[str] = registry.search_datasets(
