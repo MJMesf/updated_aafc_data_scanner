@@ -11,12 +11,154 @@ import requests
 import os
 import tempfile
 import time
+import sys
+import subprocess
 from requests.adapters import HTTPAdapter, Retry
 from selenium.webdriver import Edge
 from selenium.webdriver import EdgeOptions
 from selenium.webdriver.edge.service import Service
 from pathlib import Path
 from shutil import which
+
+#imports to keep WebDriver up to date
+from selenium.common.exceptions import SessionNotCreatedException, WebDriverException
+from selenium.webdriver.edge.options import Options as EdgeOptions
+from selenium.webdriver.edge.service import Service as EdgeService
+
+
+
+def _runtime_dir() -> Path:
+    if getattr(sys, 'frozen', False):
+        # PyInstaller
+        if hasattr(sys, '_MEIPASS'):         # one-file temp dir
+            return Path(sys._MEIPASS)
+        return Path(sys.executable).parent   # one-folder
+    return Path(__file__).resolve().parent   # dev: package folder
+
+
+def _edge_version(edge_path: str = None) -> str | None:
+    """
+    Try multiple strategies to get Edge version:
+      1) BLBeacon registry keys (HKCU/HKLM, 32/64)
+      2) edge executable --version (typical)
+      3) Common install paths (Program Files, per-user AppData)
+    Returns full string like '141.0.3537.57' or None.
+    """
+    # 1) Registry (Windows)
+    try:
+        import winreg
+        reg_paths = [
+            (winreg.HKEY_CURRENT_USER, r"SOFTWARE\Microsoft\Edge\BLBeacon"),
+            (winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Edge\BLBeacon"),
+            (winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\WOW6432Node\Microsoft\Edge\BLBeacon"),
+        ]
+        for hive, subkey in reg_paths:
+            try:
+                with winreg.OpenKey(hive, subkey) as k:
+                    for name in ("version", "pv"):
+                        try:
+                            val, _ = winreg.QueryValueEx(k, name)
+                            if isinstance(val, str) and re.search(r"\d+\.\d+\.\d+\.\d+", val):
+                                return val
+                        except FileNotFoundError:
+                            pass
+            except FileNotFoundError:
+                continue
+    except Exception:
+        pass
+
+    # 2) edge --version (if we can run it)
+    candidates = []
+    if edge_path:
+        candidates.append(edge_path)
+    candidates += [
+        r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+        r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
+        str((Path.home() / r"AppData\Local\Microsoft\Edge\Application\msedge.exe")),
+    ]
+    for exe in [c for c in candidates if c]:
+        try:
+            out = subprocess.run([exe, "--version"], capture_output=True, text=True, timeout=2)
+            m = re.search(r"(\d+\.\d+\.\d+\.\d+)", out.stdout)
+            if m:
+                return m.group(1)
+        except Exception:
+            continue
+
+    return None
+
+def _driver_version(driver_path: str) -> str | None:
+    """
+    Returns full EdgeDriver version string, e.g., '141.0.3537.57', or None.
+    """
+    try:
+        out = subprocess.run([driver_path, "--version"], capture_output=True, text=True, timeout=2)
+        # 'MSEdgeDriver 141.0.3537.57 (....)'
+        m = re.search(r"(\d+)\.(\d+)\.(\d+)\.(\d+)", out.stdout)
+        return m.group(0) if m else None
+    except Exception:
+        return None
+
+def _major(ver: str | None) -> str | None:
+    return ver.split(".", 1)[0] if ver else None
+
+def _find_cached_edgedriver_for_major(major: str) -> str | None:
+    """
+    Try to locate a matching EdgeDriver in common cache locations
+    (webdriver_manager default cache).
+    """
+    # ~/.wdm/drivers/edgedriver/win64/<version>/msedgedriver.exe
+    base = Path.home() / ".wdm" / "drivers" / "edgedriver"
+    if not base.exists():
+        return None
+    # search both win32 and win64 folders
+    for arch in ("win64", "win32"):
+        root = base / arch
+        if not root.exists():
+            continue
+        # versions are subdirectories; pick newest that matches major
+        for version_dir in sorted(root.glob("*"), key=lambda p: p.name, reverse=True):
+            if version_dir.is_dir() and version_dir.name.startswith(f"{major}."):
+                candidate = version_dir / "msedgedriver.exe"
+                if candidate.exists():
+                    return str(candidate)
+    return None
+
+def _resolve_edgedriver_path_unchecked() -> str:
+    """
+    Offline resolver without version checks:
+      Search order:
+        1) <runtime>/drivers/msedgedriver.exe
+        2) <runtime>/../drivers/msedgedriver.exe  (repo root in dev)
+        3) EDGE_DRIVER_PATH (if set)
+        4) msedgedriver found on PATH
+    Raises with clear instructions if nothing is found.
+    """
+    # place next to the app
+    p1 = _runtime_dir() / "drivers" / "msedgedriver.exe"
+    if p1.exists():
+        return str(p1)
+
+    p2 = _runtime_dir().parent / "drivers" / "msedgedriver.exe"
+    if p2.exists():
+        return str(p2)
+
+    env_path = os.getenv("EDGE_DRIVER_PATH")
+    if env_path and Path(env_path).exists():
+        return env_path
+
+    exe = which("msedgedriver")
+    if exe:
+        return exe
+
+    raise RuntimeError(
+        "No EdgeDriver found.\n"
+        "Put the driver at one of these locations:\n"
+        "  <app>/drivers/msedgedriver.exe   (next to the EXE when packaged)\n"
+        "  <repo-root>/drivers/msedgedriver.exe \n"
+        "Or set EDGE_DRIVER_PATH to the driver file.\n"
+        "Then run again."
+    )
 
 
 @dataclass
@@ -34,33 +176,33 @@ class TenaciousSession:
     """
 
     def __post_init__(self) -> None:
-        retries = Retry(backoff_factor=1,
-                        status_forcelist=[502, 503, 504])
+        retries = Retry(
+            total=2, connect=2, read=2, status=2,
+            backoff_factor=0.5,
+            status_forcelist=[429, 500, 502, 503, 504],
+            allowed_methods=frozenset(["HEAD", "GET"]),
+            raise_on_status=False
+        )
         self.session.mount('http://', HTTPAdapter(max_retries=retries))
         self.session.mount('https://', HTTPAdapter(max_retries=retries))
         if self.skip_ssl:
             self.session.verify = False
+        self.session.headers.update({"User-Agent": "AAFC-Scanner/1.0 (+requests)"})
 
     def get_and_retry(self, url: str) -> requests.Response:
-        """Sends http request and retries in case of connection issues."""
-        return self.session.get(url)
+        return self.session.get(url, allow_redirects=True, timeout=(5, 10))
 
     def head_and_retry(self, url: str) -> requests.Response:
-        """Gets head of http request (url status code and other info) and 
-        retries in case of connection issues.
-        """
-        return self.session.head(url)
+        return self.session.head(url, allow_redirects=True, timeout=(5, 10))
 
     def get_status_code(self, url: str) -> int:
-        """Gets url status code of url and corrects if needed (some ArcGis 
-        links appear as 400 or 405 while they are accessible).
-        """
-        status_code: int = self.head_and_retry(url).status_code
-        if status_code != 404 and \
-                re.search(r'atlas/rest|atlas/services', url):
+        try:
+            status_code: int = self.head_and_retry(url).status_code
+        except Exception:
+            return -1  # fast-fail on network/SSL/connect errors
+
+        if status_code != 404 and re.search(r'atlas/rest|atlas/services', url):
             status_code = 300
-            # because program would give 500 status code for working links on
-            # atlas web map services
         return status_code
 
 
@@ -158,34 +300,61 @@ class DriverDataCatalogue(DataCatalogue):
         self.base_url = base_url
         options = EdgeOptions()
 
-        #unique directory to avoid multiple Edge instance issue
+        # ----- Profile isolation (keep your behavior) -----
         profile_dir = tempfile.mkdtemp(prefix="EdgeProfileUnique_")
+        options.add_argument(f"--user-data-dir={profile_dir}")
 
-        options.add_argument("headless")
+        # ----- Flags (keep yours; avoid headless if SSO required) -----
+        # If you ever need headless anyway, prefer modern flag:
+        options.add_argument("--headless=new")
         options.add_argument("disable-gpu")
         options.add_experimental_option('excludeSwitches', ['enable-logging'])
         options.add_argument("--log-level=3")
 
-        from shutil import which
-        service = None
+        # ----- Resolve driver path without version checks -----
+        driver_path = _resolve_edgedriver_path_unchecked()
+        service = EdgeService(driver_path)
 
-        driver_path = os.getenv("EDGE_DRIVER_PATH")
-        if driver_path and Path(driver_path).exists():
-            service = Service(driver_path)
+        # ----- Try to start; on mismatch, show explicit fix -----
+        try:
+            self.driver = Edge(service=service, options=options)
 
-        else:
-            from shutil import which
-            exe = which("msedgedriver")
-            if exe:
-                service = Service(exe)
-            else:
-                # last resort: webdriver_manager (needs internet)
-                from webdriver_manager.microsoft import EdgeChromiumDriverManager
-                service = Service(EdgeChromiumDriverManager().install())
+        except SessionNotCreatedException as e:
+            # Most likely: driver/browser version mismatch.
+            # Try to detect both versions to help the user.
+            drv_ver = _driver_version(driver_path) or "unknown"
+            try:
+                edge_ver = _edge_version() or "unknown"
+            except Exception:
+                edge_ver = "unknown"
 
-        #create unique path so Edge has no other instances
-        options.add_argument(f"--user-data-dir={profile_dir}")
-        self.driver = Edge(service=service,options=options)
+            raise RuntimeError(
+                "Microsoft Edge and EdgeDriver appear to be mismatched.\n"
+                f"  • EdgeDriver at: {driver_path}\n"
+                f"  • EdgeDriver version: {drv_ver}\n"
+                f"  • Microsoft Edge version: {edge_ver}\n\n"
+                "Fix: Replace the driver with the SAME-MAJOR version as Edge.\n"
+                "Place it at:\n"
+                "  <app>/drivers/msedgedriver.exe  (when packaged)\n"
+                "  <repo-root>/drivers/msedgedriver.exe  (during development)\n"
+                "Or set EDGE_DRIVER_PATH to the correct file.\n"
+            ) from e
+
+        except WebDriverException as e:
+            # Other startup issues (e.g., permissions)
+            raise RuntimeError(f"Failed to start Edge WebDriver: {e}")
+
+        # ----- Optional: log versions after successful start -----
+        try:
+            caps = self.driver.capabilities
+            bver = caps.get("browserVersion") or caps.get("version")
+            info = caps.get("msedge", {}) or caps.get("chrome", {}) or {}
+            dver = info.get("chromedriverVersion", "")
+            print(f"[Edge OK] Browser {bver} | Driver {dver}")
+        except Exception:
+            pass
+
+
 
     # overrides DataCatalogue's abstract method
     def request_ckan(self, url: str) -> Any:

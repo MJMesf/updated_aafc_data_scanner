@@ -51,10 +51,12 @@ class Inventory:
 
             record: Dict[str, Any] = {}
             record['id'] = dataset['id']
-            record['title_en'] = dataset['title_translated']['en']
-            record['title_fr'] = dataset['title_translated']['fr']
-            record['published'] = dt.datetime.strptime(
-                dataset['date_published'],'%Y-%m-%d %H:%M:%S').isoformat()
+            record['title_en'] = (dataset.get('title_translated', {}).get('en')
+                      or dataset.get('title') or '')
+            record['title_fr'] = dataset.get('title_translated', {}).get('fr') or ''
+            dp = dataset.get('date_published')
+            record['published'] = (dt.datetime.strptime(dp, '%Y-%m-%d %H:%M:%S').isoformat()
+                       if isinstance(dp, str) and dp else None)
             record['metadata_created'] = dataset['metadata_created']
             record['metadata_modified'] = dataset['metadata_modified']
             record['num_resources'] = dataset['num_resources']
@@ -83,28 +85,21 @@ class Inventory:
 
             # inconsistent metadata fields
 
-            if dataset['maintainer_email'] is not None:
-                record['maintainer_email'] = dataset['maintainer_email'].lower()
-            elif 'data_steward_email' in dataset.keys() and \
-                    dataset['data_steward_email'] is not None:
-                record['maintainer_email'] = dataset['data_steward_email'].lower()
-            elif 'author_email' in dataset.keys() and \
-                    dataset['author_email'] is not None:
-                record['maintainer_email'] = dataset['author_email'].lower()
-            else:
-                record['maintainer_email'] = None
-            record['maintainer_name'] = infer_name_from_email(
-                record['maintainer_email'])
+            email = (dataset.get('maintainer_email')
+                    or dataset.get('data_steward_email')
+                    or dataset.get('author_email')
+                    or '')
+            record['maintainer_email'] = email.lower() if isinstance(email, str) else ''
+            record['maintainer_name'] = infer_name_from_email(record['maintainer_email'])
 
             try:
                 record['collection'] = dataset['collection']
             except KeyError:
                 record['collection'] = None
 
-            record['frequency'] = dataset['frequency']
+            record['frequency'] = dataset.get('frequency')
             if not isinstance(record['frequency'], str):
-                print(f'Error for id {record['id']}:',
-                      f'frequency is {record['frequency']} (not str)')
+                print(f"Error for id {record['id']}: frequency is {record['frequency']} (not str)")
 
             # 'modified', 'up_to_date', 'official_lang', 'open_formats' and 'spec' 
             # will be added to the record later on
@@ -132,26 +127,23 @@ class Inventory:
             record['format'] = resource['format']
             record['dataset_id'] = resource['package_id']
             record['resource_type'] = resource['resource_type']
-            record['url'] = resource['url']
-            record['https'] = str(resource['url']).startswith('https') or \
-                str(resource['url']).startswith('file')
+            record['url'] = resource.get('url') or ''
+            record['https'] = record['url'].startswith('https') or record['url'].startswith('file')
 
             # checking url state
             if validators.url(record['url']):
-                urllib3.disable_warnings(
-                    urllib3.exceptions.InsecureRequestWarning
-                )
-                record['url_status'] = TenaciousSession(
-                    skip_ssl=True
-                ).get_status_code(resource['url'])
+                urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+                record['url_status'] = TenaciousSession(skip_ssl=True).get_status_code(record['url'])
             else:
                 # not a url (most likely an internal file path)
-                record['url_status'] = -1 
+                record['url_status'] = -1
 
             # languages mapping to iso639-3 and concatenation
-            lang: List[str] = list(map(lambda x: ISO639_MAP[x], 
-                                       resource['language']))
-            record['lang'] = '/'.join(lang)
+            langs = resource.get('language') or []
+            if isinstance(langs, str):
+                langs = [langs]
+            lang_mapped = [ISO639_MAP.get(x, x) for x in langs]
+            record['lang'] = '/'.join(lang_mapped) if lang_mapped else ''
 
             # metadata specific to each platform
             if from_catalogue:
@@ -321,7 +313,6 @@ class Inventory:
                     case=False).sum():      
                 return True
             return False
-        # no dataset => no need for data dictionary/specification
         return True
 
     def _collect_dataset_with_resources(

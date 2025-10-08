@@ -24,9 +24,12 @@ def display_exit_message() -> NoReturn:
     user has time to read all logged messages if needed before closing 
     console.
     """
-    for var in globals():
-        if isinstance(var, DriverDataCatalogue):
-            var.driver.close()
+    for obj in globals().values():
+        if isinstance(obj, DriverDataCatalogue):
+            try:
+                obj.driver.quit()
+            except Exception:
+                pass
     print(Fore.CYAN + '\nClick Enter to exit.' + Fore.RESET)
     input()
 
