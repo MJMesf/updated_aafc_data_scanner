@@ -50,16 +50,41 @@ class Inventory:
         try:
 
             record: Dict[str, Any] = {}
-            record['id'] = dataset['id']
+            record['id'] = dataset.get('id')
             record['title_en'] = (dataset.get('title_translated', {}).get('en')
                       or dataset.get('title') or '')
             record['title_fr'] = dataset.get('title_translated', {}).get('fr') or ''
             dp = dataset.get('date_published')
             record['published'] = (dt.datetime.strptime(dp, '%Y-%m-%d %H:%M:%S').isoformat()
                        if isinstance(dp, str) and dp else None)
-            record['metadata_created'] = dataset['metadata_created']
-            record['metadata_modified'] = dataset['metadata_modified']
-            record['num_resources'] = dataset['num_resources']
+            record['metadata_created'] = dataset.get('metadata_created')
+            record['metadata_modified'] = dataset.get('metadata_modified')
+            record['num_resources'] = dataset.get('num_resources')
+
+            record['creator'] = dataset.get('creator') #G 
+            record['data_steward_email'] = dataset.get('data_steward_email') #J
+            record['elegible_for_release'] = dataset.get('elegible_for_release') #M
+            record['jurisdiction'] = dataset.get('jurisdiction') #R
+            record['license_title'] = dataset.get('license_title') #S
+            #U done
+            #X
+            record['notes_en'] = (dataset.get('notes_translated', {}).get('en')
+                      or dataset.get('notes') or '') 
+            record['notes_fr'] = dataset.get('notes_translated', {}).get('fr') or ''
+            #Z
+            record['odi_reference_number'] = dataset.get('odi_reference_number')
+            #AC
+            record['organization_description'] = dataset.get('organization', {}).get('description') or ''
+            #AD
+            record['procured_data'] = dataset.get('procured_data')
+            #AE
+            record['procured_data_organization_name'] = dataset.get('procured_data_organization_name')
+            #AF
+            record['publication'] = dataset.get('publication')
+            #AG
+            record['state'] = dataset.get('state')
+            #AI
+            record['subject'] = dataset.get('subject')
 
             # metadata specific to each platform
             org = dataset['organization']['name']
@@ -72,8 +97,14 @@ class Inventory:
                 record['aafc_org_title'] = org_title
                 record['catalogue_link'] = CATALOGUE_DATASETS_BASE_URL.format(
                     record['id'])
-                record['harvested'] = dataset['aafc_is_harvested'] == 'true'
-                record['internal'] = dataset['publication'] == 'internal'
+                try:
+                    record['harvested'] = str(dataset.get('aafc_is_harvested')).lower() == 'true'
+                    record['internal'] = str(dataset.get('publication')).lower() == 'internal'
+                except KeyError:
+                    record['harvested'] = None
+                    record['internal'] = dataset.get('publication') == 'internal'
+                    
+                   
             else:
                 record['on_registry'] = True
                 record['org'] = org
@@ -234,36 +265,54 @@ class Inventory:
 
     @staticmethod
     def get_up_to_date(ds: pd.Series,
-                       now: dt.datetime = dt.datetime.now()) -> bool:
+                    now: dt.datetime = dt.datetime.now()) -> bool:
         """Computes currency based on the frequency and last date modified of 
         the dataset. Returns True if dataset is up to date and False if it 
         needs update or cannot read the frequency. (Note: readable frequencies 
         are stored in formats as P1D, P3W, P6M, P1Y, etc.)
         """
-        # returning True (up to date) if the dataset is harvested
-        val = ds.get("harvested", False) 
+        # 1) Short-circuit: harvested datasets are always up to date
+        val = ds.get("harvested", False)
         if pd.notna(val) and bool(val):
             return True
-        # computing oldest date considered as valid to be up to date
-        frequency: str = ds.frequency
-        if isinstance(frequency, str) and frequency.startswith('P') and \
-                frequency != 'PT1S':
-            full_unit: Dict[str, str] = {'D': 'day', 'W': 'week', 
-                                        'M': 'month', 'Y': 'year'}
-            unit: str = full_unit[frequency[-1]]
-            n: float = float(frequency[1:-1]) # e.g. 1, 2, 0.5 ...
+
+        # 2) Parse update frequency; if not a planned update, treat as up to date
+        frequency: str = getattr(ds, "frequency", None)
+        if isinstance(frequency, str) and frequency.startswith("P") and frequency != "PT1S":
+            full_unit: Dict[str, str] = {"D": "day", "W": "week", "M": "month", "Y": "year"}
+            try:
+                unit: str = full_unit[frequency[-1]]
+                n: float = float(frequency[1:-1])  # e.g., 1, 2, 0.5 ...
+            except Exception:
+                # Malformed frequency → treat like "no plan" (up to date)
+                return True
             oldest_valid_update: dt.datetime = date_ago(n, unit, from_=now)
         else:
-            # no update explicitly planned
+            # No update explicitly planned → up to date
             return True
 
-        # Getting last modified date, based on resources
-        last_modified = dt.datetime.fromisoformat(ds.modified)
-        if last_modified >= oldest_valid_update:
-            return True
-        else:
+        # 3) Safely read/parse the dataset's last modified timestamp
+        #    Accepts str/None/NaT/Timestamp; returns NaT on failure.
+        val_modified = ds.get("modified") if hasattr(ds, "get") else getattr(ds, "modified", None)
+        ts = pd.to_datetime(val_modified, errors="coerce", utc=True)
+
+        # If we can't parse a valid timestamp, treat as not up to date
+        if pd.isna(ts):
             return False
 
+        # Normalize to naive datetime for comparison
+        try:
+            last_modified = ts.tz_convert(None).to_pydatetime()
+        except Exception:
+            # If tz-naive already
+            try:
+                last_modified = ts.tz_localize(None).to_pydatetime()
+            except Exception:
+                # Final fallback
+                last_modified = ts.to_pydatetime() if hasattr(ts, "to_pydatetime") else ts
+
+        return last_modified >= oldest_valid_update
+    
     @staticmethod
     def get_official_lang(ds: pd.Series, all_resources: pd.DataFrame) -> bool:
         """Returns True if dataset ds is compliant with official languages 

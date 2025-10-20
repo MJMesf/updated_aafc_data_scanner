@@ -39,7 +39,21 @@ DATASETS_COLS = [
     'maintainer_email', 'maintainer_name', 'collection', 
     'frequency', 'harvested', 'internal',
     'up_to_date', 'official_lang', 'open_formats', 'spec', 
-    'registry_link', 'catalogue_link'
+    'registry_link', 'catalogue_link', 
+    'creator',
+    'data_steward_email',
+    'elegible_for_release',
+    'jurisdiction',
+    'license_title',
+    'notes_en',
+    'notes_fr',
+    'odi_reference_number',
+    'organization_description',
+    'procured_data',
+    'procured_data_organization_name',
+    'publication',
+    'state',
+    'subject'
 ]
 DATASETS_DTYPES = {
     'id': 'string', 'title_en': 'string', 'title_fr': 'string', 
@@ -52,7 +66,21 @@ DATASETS_DTYPES = {
     'collection': 'string', 'frequency': 'string', 'harvested': 'boolean', 
     'internal': 'boolean', 'up_to_date': 'boolean', 
     'official_lang': 'boolean', 'open_formats': 'boolean', 'spec': 'boolean', 
-    'registry_link': 'string', 'catalogue_link': 'string'
+    'registry_link': 'string', 'catalogue_link': 'string',
+    'creator': 'string',
+    'data_steward_email': 'string',
+    'elegible_for_release': 'string',
+    'jurisdiction': 'string',
+    'license_title': 'string',
+    'notes_en': 'string',
+    'notes_fr': 'string',
+    'odi_reference_number' : 'string',
+    'organization_description' : 'string',
+    'procured_data': 'string',
+    'procured_data_organization_name':'string',
+    'publication': 'string',
+    'state':'string',
+    'subject': 'string',
 }
 RESOURCES_COLS = [
     'id', 'title_en', 'title_fr', 'created', 
