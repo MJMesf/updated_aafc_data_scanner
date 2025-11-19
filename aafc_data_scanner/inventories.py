@@ -47,6 +47,17 @@ class Inventory:
         """Adds the given dataset's information to the datasets dataframe.
         The lock argument is a mutex on the datasets dataframe."""
 
+        def check_extra(dataset: dict, key: str, default=""):
+            extras = {e.get("key"): e.get("value") for e in dataset.get("extras", []) if isinstance(e, dict)}
+            return dataset.get(key) or extras.get(key, default)
+        
+        def _one_line(s):
+            if not isinstance(s, str): return ""
+            s = re.sub(r"[\r\n]+", " ", s)
+            return re.sub(r"\s+", " ", s).strip()
+        
+        empty_row = []
+                
         try:
 
             record: Dict[str, Any] = {}
@@ -54,57 +65,105 @@ class Inventory:
             record['title_en'] = (dataset.get('title_translated', {}).get('en')
                       or dataset.get('title') or '')
             record['title_fr'] = dataset.get('title_translated', {}).get('fr') or ''
+
             dp = dataset.get('date_published')
-            record['published'] = (dt.datetime.strptime(dp, '%Y-%m-%d %H:%M:%S').isoformat()
-                       if isinstance(dp, str) and dp else None)
+            if isinstance(dp, str) and dp:
+                ts = pd.to_datetime(dp, errors="coerce", utc=True)
+                if pd.isna(ts):
+                    record['published'] = dp
+                else:
+                    try:
+                        ts = ts.tz_convert(None)
+                    except Exception:
+                        try:
+                            ts = ts.tz_localize(None)
+                        except Exception:
+                            pass
+                    record['published'] = ts.isoformat()
+            else:
+                record['published'] = None
+
             record['metadata_created'] = dataset.get('metadata_created')
             record['metadata_modified'] = dataset.get('metadata_modified')
             record['num_resources'] = dataset.get('num_resources')
+            record['creator'] = (
+                dataset.get('creator')
+                or dataset.get('author')
+                or ''
+            )
 
-            record['creator'] = dataset.get('creator') #G 
-            record['data_steward_email'] = dataset.get('data_steward_email') #J
-            record['elegible_for_release'] = dataset.get('elegible_for_release') #M
-            record['jurisdiction'] = dataset.get('jurisdiction') #R
-            record['license_title'] = dataset.get('license_title') #S
-            #U done
-            #X
-            record['notes_en'] = (dataset.get('notes_translated', {}).get('en')
-                      or dataset.get('notes') or '') 
-            record['notes_fr'] = dataset.get('notes_translated', {}).get('fr') or ''
-            #Z
-            record['odi_reference_number'] = dataset.get('odi_reference_number')
-            #AC
-            record['organization_description'] = dataset.get('organization', {}).get('description') or ''
-            #AD
-            record['procured_data'] = dataset.get('procured_data')
-            #AE
-            record['procured_data_organization_name'] = dataset.get('procured_data_organization_name')
-            #AF
-            record['publication'] = dataset.get('publication')
-            #AG
-            record['state'] = dataset.get('state')
-            #AI
-            record['subject'] = dataset.get('subject')
+            ds_email = dataset.get('data_steward_email') or ''
+            record['data_steward_email'] = (
+                ds_email.lower() if isinstance(ds_email, str) else ''
+            )
+
+            record['elegible_for_release'] = as_bool(
+                dataset.get('elegible_for_release'),
+                default=False
+            )
+
+            record['jurisdiction'] = dataset.get('jurisdiction') or ''
+            record['license_title'] = dataset.get('license_title') or ''
+
+            # clean notes to one line to fix messy csv
+            notes_translated = dataset.get('notes_translated') or {}
+            record['notes_en'] = _one_line(
+                notes_translated.get('en')
+                or dataset.get('notes')
+                or ''
+            )
+            record['notes_fr'] = _one_line(
+                notes_translated.get('fr') or ''
+            )
+
+            record['odi_reference_number'] = check_extra(
+                dataset, 'odi_reference_number', ''
+            ) or dataset.get('odi_reference_number') or {}
+
+            org_obj = dataset.get('organization') or {}
+            record['organization_description'] = org_obj.get('description') or ''
+
+            record['procured_data'] = as_bool(
+                dataset.get('procured_data'),
+                default=False
+            )
+            record['procured_data_organization_name'] = (
+                dataset.get('procured_data_organization_name') or ''
+            )
+
+            # publication can be top-level or in extras
+            pub_val = check_extra(dataset, 'publication', '')
+            record['publication'] = pub_val or dataset.get('publication')
+
+            record['state'] = dataset.get('State') or dataset.get('state') or ''
+            record['subject'] = dataset.get('subject') or ''
+
 
             # metadata specific to each platform
-            org = dataset['organization']['name']
-            org_title = re.sub(
-                r'([^\|]+) \| ([^\|]+)', r'\1', dataset['organization']['title']
+            org_obj = dataset.get('organization') or {}
+            org = org_obj.get('name', '')
+            org_title_raw = org_obj.get('title', '')
+            org_title = (
+                re.sub(r'([^\|]+) \| ([^\|]+)', r'\1', org_title_raw)
+                if isinstance(org_title_raw, str) else ''
             )
+
             if from_catalogue:
                 record['on_catalogue'] = True
                 record['aafc_org'] = org
                 record['aafc_org_title'] = org_title
                 record['catalogue_link'] = CATALOGUE_DATASETS_BASE_URL.format(
                     record['id'])
-                try:
-                    record['harvested'] = str(dataset.get('aafc_is_harvested')).lower() == 'true'
-                    record['internal'] = str(dataset.get('publication')).lower() == 'internal'
-                except KeyError:
-                    record['harvested'] = None
-                    record['internal'] = dataset.get('publication') == 'internal'
-                    
-                   
+
+                record['harvested'] = as_bool(
+                    dataset.get('aafc_is_harvested'),
+                    default=False
+                )
+
+                
+                record['internal'] = (
+                    str(pub_val).strip().lower() == 'internal'
+                )
             else:
                 record['on_registry'] = True
                 record['org'] = org
@@ -113,6 +172,7 @@ class Inventory:
                     record['id'])
                 record['harvested'] = False
                 record['internal'] = False
+
 
             # inconsistent metadata fields
 
@@ -136,7 +196,8 @@ class Inventory:
             # will be added to the record later on
 
         except Exception as e: # pylint: disable=bare-except
-            print(f'!!! An exception occurred in add_dataset:\n{e}')
+            print(f'!!! Exception in add_dataset for id={record.get("id")}: {e}')
+
 
         lock.acquire()
         datasets.loc[len(datasets)] = record # type: ignore
