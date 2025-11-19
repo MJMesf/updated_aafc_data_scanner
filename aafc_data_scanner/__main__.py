@@ -7,6 +7,7 @@ import atexit
 from typing import List, NoReturn
 import warnings
 from colorama import Fore
+from pathlib import Path
 
 from .constants import REGISTRY_BASE_URL, CATALOGUE_BASE_URL, AAFC_ORG_ID
 from .tools import RequestsDataCatalogue, DriverDataCatalogue
@@ -138,6 +139,16 @@ def main() -> NoReturn:
     inventory.export_resources(path='./inventories/',
                                filename='_latest_resources_inventory.csv')
 
+    check_broken_links = False
+    print('\n\nWould you like a report on the current broken links\nwithin the Catalogue?')
+    print(Fore.CYAN + 'Enter y for yes:' + Fore.RESET, end=" ")
+    response = str(input())
+    if response.lower() == 'y':
+        check_broken_links = True
+
+    if check_broken_links:
+        from link_checks import main as checkbrokenlinks
+        checkbrokenlinks()
 
 if __name__ == '__main__':
     main()
