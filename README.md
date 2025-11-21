@@ -146,11 +146,11 @@ Now that the venv is set up locally on your repo, make sure **venv/** is in your
 
 ## How to export as a single executable file
 
-Open a terminal in the project's main folder. First, make sure poetry is installed (`poetry install`) and the environment is activated (`poetry shell`).
+Open a terminal in the project's main folder.
 You can then enter:
-
 ```powershell
-pyinstaller --onefile -n "aafc_data_scanner" -i .\icons\aafc_data_scanner_icon.ico .\cli.py
+py -m PyInstaller -n aafc_scanner --onedir --noconfirm --clean --icon "icons\aafc_data_scanner_icon.ico" cli.py --add-data "aafc_data_scanner; aafc_data_scanner" && mkdir "dist\aafc_scanner\drivers"
 ```
-
 The excutable file will be placed in a newly-created **dist** folder.
+
+Ensure the correct driver is installed and placed in **drivers** folder. Review Scanner documentation for full intructions on the Scanner's folder location and additional files to keep in directory.
